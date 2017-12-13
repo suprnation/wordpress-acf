@@ -1,0 +1,69 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+          http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <jpa:repositories base-package="com.suprnation.cms"
+                      entity-manager-factory-ref="cmsEntityManagerFactory"
+                      transaction-manager-ref="cmsTransactionManager"/>
+
+    <tx:annotation-driven transaction-manager="cmsTransactionManager"/>
+
+    <bean id="cmsHikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="initializationFailFast" value="false"/>
+        <property name="maximumPoolSize" value="${database.cms.max.connections}"/>
+        <property name="leakDetectionThreshold" value="20000"/>
+        <property name="connectionTestQuery" value="SELECT 1"/>
+        <property name="dataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource"/>
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${database.cms.url}</prop>
+                <prop key="user">${database.cms.user}</prop>
+                <prop key="password">${database.cms.password}</prop>
+                <prop key="zeroDateTimeBehavior">convertToNull</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="cmsDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="cmsHikariConfig"/>
+    </bean>
+
+    <bean id="cmsEntityManagerFactory"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="persistenceUnitName" value="cms"/>
+        <property name="dataSource" ref="cmsDataSource"/>
+        <property name="packagesToScan" value="com.suprnation.cms"/>
+        <property name="jpaPropertyMap">
+            <map>
+                <entry key="hibernate.connection.zeroDateTimeBehavior" value="convertToNull"/>
+                <entry key="hibernate.cache.use_query_cache" value="false"/>
+                <entry key="hibernate.cache.use_second_level_cache" value="false"/>
+                <entry key="hibernate.cache.region.factory_class"
+                       value="net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory"/>
+                <entry key="hibernate.generate_statistics" value="false"/>
+                <entry key="hibernate.cache.use_minimal_puts" value="true"/>
+                <entry key="hibernate.default_batch_fetch_size" value="8"/>
+                <entry key="hibernate.jdbc.batch_size" value="20"/>
+                <entry key="hibernate.connection.handling_mode"
+                       value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION"/>
+            </map>
+        </property>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="database" value="DEFAULT"/>
+                <property name="showSql" value="false"/>
+                <property name="generateDdl" value="${database.suprnation.ddl}"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="cmsTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="cmsEntityManagerFactory"/>
+        <qualifier value="cmsTransactionManager"/>
+    </bean>
+
+</beans>

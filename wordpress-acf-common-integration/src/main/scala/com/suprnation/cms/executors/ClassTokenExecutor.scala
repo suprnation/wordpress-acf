@@ -1,0 +1,137 @@
+package com.suprnation.cms.executors
+
+import java.util
+
+import com.suprnation.cms.cache.{GlobalPostCache, _}
+import com.suprnation.cms.model.CmsPost
+import com.suprnation.cms.compiler.AstCompiler
+import com.suprnation.cms.log._
+import com.suprnation.cms.marker.{CmsPostClonable, CmsPostIdentifier}
+import com.suprnation.cms.repository.CmsPostMetaRepository
+import com.suprnation.cms.resolvers.{ChainedFieldResolver, ParameterisedListResolver, ParameterisedRelationshipResolver, PrimitiveFieldResolver}
+import com.suprnation.cms.result.{CachedValue, NotFoundInDb, Result, SearchInDatabase}
+import com.suprnation.cms.service.{AcfFieldService, CmsPostMetaService, CmsPostService, CmsRelationshipService}
+import com.suprnation.cms.store.GlobalPostCacheStore
+import com.suprnation.cms.tokens._
+import com.suprnation.cms.types.PostId
+import com.suprnation.cms.utils.CmsReflectionUtils
+
+import scala.collection.JavaConverters._
+import com.suprnation.cms.interop._
+
+
+case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: CmsPostIdentifier]
+(postToken: PostToken[T],
+ fieldExecutors: List[S],
+ filters: List[PostId] = List.empty)
+(implicit acfFieldService: AcfFieldService,
+ astCompiler: AstCompiler,
+ cmsPostMetaRepository: CmsPostMetaRepository,
+ cmsPostService: CmsPostService,
+ cmsPostMetaService: CmsPostMetaService,
+ cmsRelationshipService: CmsRelationshipService,
+ executionLogger: ExecutionLogger)
+  extends ClassExecutionPlan[util.List[T]] {
+
+  override def filter(s: List[PostId]): ClassTokenExecutor[S, T] = {
+    new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters ++ s)
+  }
+
+  def execute(depth: Int = 0)(implicit store: GlobalPostCacheStore): Result[java.util.List[T]] = {
+    logNewExecution(depth, postToken, filters)
+    val globalPostCache: GlobalPostCache = store.getOrElse(this.postToken.postType, EmptyGlobalPostCache)
+    val (result, newGlobalPostCache) = this.execute(globalPostCache, depth)
+    store += (this.postToken.postType -> newGlobalPostCache)
+    result
+  }
+
+  private[this] def execute(globalPostCache: GlobalPostCache, depth: Int)(implicit store: GlobalPostCacheStore): (Result[java.util.List[T]], GlobalPostCache) = {
+    val (cachedPosts, nonCachedPosts) = getCachedAndNonCachedPosts(globalPostCache)
+    val (loaded, newGlobalPostCache) = retrieveNonCachedPosts(globalPostCache, nonCachedPosts.toList, depth + 1)
+    val foundCachedPosts = cachedPosts.collect { case CachedValue(value: T) => value }
+    val mergedValues = foundCachedPosts ++ loaded.asScala
+    val missing = filters.toSet.diff(mergedValues.map(_.getWordpressId).toSet)
+    logExecution(depth, postToken, MultipleResultCacheMetric(loaded.size(), nonCachedPosts.size - loaded.size()), multipart = true)
+    (Result(mergedValues), missing.foldLeft(newGlobalPostCache)((acc, postId) =>
+      acc + (postId -> NotFoundInDb)
+    ))
+  }
+
+  private[this] def getCachedAndNonCachedPosts(globalPostCache: GlobalPostCache): (List[Result[CmsPostIdentifier]], Iterable[CmsPost]) = {
+    val (cachedPosts, nonCachedPosts) =
+      if (filters.isEmpty) {
+        val postsFoundInDatabase = cmsPostService.findByType(postToken.postType)
+        val (loaded, remaining) = postsFoundInDatabase.partition(cmsPost => globalPostCache.keySet.contains(cmsPost.getWordpressId))
+        val loadedFromCache = loaded.map(cmsPost => globalPostCache(cmsPost.getWordpressId)).toList
+        (loadedFromCache, remaining)
+
+      } else {
+        // From the filtered list we could have already loaded some posts.  Let's only retrieve what we need atm.
+        val (loaded, remainingWordpressIds) = this.filters.partition(globalPostCache.keySet.contains(_))
+        val remaining = if (remainingWordpressIds.nonEmpty) {
+          cmsPostService.findByTypeAndIdIn(postToken.postType, remainingWordpressIds)
+        } else {
+          List()
+        }
+        (loaded.map(l => globalPostCache(l)), remaining)
+      }
+    (cachedPosts, nonCachedPosts)
+  }
+
+  private[this] def retrieveNonCachedPosts(globalPostCache: GlobalPostCache, nonCachedPosts: List[CmsPost], depth: Int)(implicit store: GlobalPostCacheStore): (java.util.List[T], GlobalPostCache) = {
+    if (nonCachedPosts.nonEmpty) {
+      val optimisedFieldResolver = ChainedFieldResolver(PrimitiveFieldResolver(depth))
+        .after(ParameterisedListResolver(depth))
+        .after(ParameterisedRelationshipResolver(depth))
+
+      val postIds: List[PostId] = nonCachedPosts.map(_.getWordpressId)
+      val newGlobalFieldCache: GlobalFieldCache = optimisedFieldResolver.beforeAllExecution(postToken.fields, postIds)(EmptyGlobalFieldCache, store).merge(
+        nonCachedPosts.foldLeft(EmptyGlobalFieldCache)((globalContext, cmsPost) => {
+          globalContext.merge(Map(cmsPost.getId -> EmptyFieldCache.merge(cmsPost, postToken.fields)))
+        })
+      )
+
+      val (resolvedPosts, _) = nonCachedPosts.foldLeft((List.empty[T], newGlobalFieldCache))((acc, cmsPost) => {
+        val (posts, newGlobalFieldCache) = acc
+        val instance: T = CmsReflectionUtils.construct(postToken.source)
+        logInstantiation(depth, postToken, cmsPost.getId)
+
+
+        (posts ++ List(instance), this.fieldExecutors.foldLeft(newGlobalFieldCache)((globalExecutionContext, executor) => {
+          val (optional, mergedFilterContext) = getFromCacheOrSearch(cmsPost.getWordpressId, executor, depth + 1)(globalExecutionContext, store)
+          optional match {
+            case CachedValue(fieldValue: Object) =>
+              executor.fieldToken.injector.inject(instance, fieldValue)
+              mergedFilterContext
+            case _ =>
+              mergedFilterContext
+          }
+        }))
+      })
+
+      // Fold in the results to the global post cache so that we can find them later.
+      val newGlobalPostCache = resolvedPosts.foldLeft(globalPostCache)((acc, postInstance) => {
+        acc + (postInstance.getWordpressId -> Result(postInstance))
+      })
+
+      // Return the results and the new folded results.
+      (resolvedPosts, newGlobalPostCache)
+    } else {
+      (List(), globalPostCache)
+    }
+  }
+
+  def getFromCacheOrSearch(postId: java.lang.Long, fieldExecutionPlan: FieldExecutionPlan[CmsFieldToken, _], depth: Int)
+                          (implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): (Result[_], GlobalFieldCache) = {
+    val fieldToken = fieldExecutionPlan.fieldToken
+    val cachedValue: Result[_] = globalFieldCache.getOrEmpty(postId).getOrElse(fieldToken, Result.searchInDatabase).asInstanceOf[Result[java.util.List[T]]]
+    logExecutionOnBehalf(fieldExecutionPlan, depth, fieldToken, CacheMetric(cachedValue))
+    cachedValue match {
+      case CachedValue(_) => (cachedValue, globalFieldCache)
+      case NotFoundInDb => (cachedValue, globalFieldCache)
+      case SearchInDatabase =>
+        val value = fieldExecutionPlan.filter(Option(postId)).execute(depth)
+        globalFieldCache.withCachedValue(postId, fieldExecutionPlan.fieldToken, value)
+    }
+  }
+}
