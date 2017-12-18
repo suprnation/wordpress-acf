@@ -12,7 +12,7 @@ import com.suprnation.cms.model.CmsPost
 import com.suprnation.cms.repository.CmsPostMetaRepository
 import com.suprnation.cms.result.Result
 import com.suprnation.cms.service.{AcfFieldService, CmsPostMetaService, CmsPostService, CmsRelationshipService}
-import com.suprnation.cms.store.GlobalPostCacheStore
+import com.suprnation.cms.store.{GlobalPostCacheStore, InMemoryStore}
 import com.suprnation.cms.tokens._
 import com.suprnation.cms.types.{PostId, Taxonomy, Term}
 import com.suprnation.to.TaxonomyType.Tax
@@ -133,6 +133,6 @@ class ResolverTest extends FunSuite with Matchers with BeforeAndAfterEach {
     cmsPostService = mock(classOf[CmsPostService])
     cmsPostMetaService = mock(classOf[CmsPostMetaService])
     cmsRelationshipService = mock(classOf[CmsRelationshipService])
-    store = new mutable.HashMap()
+    store = InMemoryStore.newStore
   }
 }

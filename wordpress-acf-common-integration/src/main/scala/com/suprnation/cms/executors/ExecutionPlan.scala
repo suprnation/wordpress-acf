@@ -1,14 +1,13 @@
 package com.suprnation.cms.executors
 
+import com.suprnation.cms.log.ExecutorLogging
 import com.suprnation.cms.resolvers.{EmptyFieldResolver, FieldResolver}
 import com.suprnation.cms.result.Result
+import com.suprnation.cms.store.{GlobalPostCacheStore, Store}
 import com.suprnation.cms.tokens.CmsFieldToken
-import com.suprnation.cms.context.MutableCache
-import com.suprnation.cms.log.ExecutorLogging
-import com.suprnation.cms.store.GlobalPostCacheStore
 import com.suprnation.cms.types.PostId
 
-trait ExecutionPlan[T, S, C <: MutableCache[_, _]] extends ExecutorLogging {
+trait ExecutionPlan[T, S, C <: Store[_, _]] extends ExecutorLogging {
   def filter(s: S): ExecutionPlan[T, S, C]
 
   def execute(depth: Int)(implicit cache: C): Result[T]
