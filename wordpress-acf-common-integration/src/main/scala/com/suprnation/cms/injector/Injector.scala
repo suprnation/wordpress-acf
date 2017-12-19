@@ -6,7 +6,6 @@ import java.util
 
 import com.suprnation.cms.marker.CmsPostClonable
 import com.suprnation.cms.utils.{CmsReflectionUtils, TypeUtils}
-import java.util.Collections
 
 import scala.collection.JavaConverters._
 
@@ -61,7 +60,7 @@ sealed trait Injector {
 
   override def hashCode(): Int = field.hashCode()
 
-  override def equals(obj: Any): Boolean = field.equals(obj)
+  override def equals(obj: Any): Boolean = obj != null && obj.isInstanceOf[Injector] && field.equals(obj.asInstanceOf[Injector].field)
 }
 
 case class SetterInjector(override val field: Field,
@@ -77,6 +76,8 @@ case class SetterInjector(override val field: Field,
     method setAccessible true
     method invoke(target, preProcessor.transform(cloneOrReturn(value)))
   }
+
+  override def equals(obj: Any) = super.equals(obj)
 }
 
 
@@ -92,5 +93,7 @@ case class FieldInjector(override val field: Field,
     field setAccessible true
     field set(target, preProcessor.transform(cloneOrReturn(value)))
   }
+
+  override def equals(obj: Any) = super.equals(obj)
 }
 
