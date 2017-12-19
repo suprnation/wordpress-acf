@@ -1,8 +1,11 @@
 package com.suprnation.cms.ast
 
-import com.suprnation.cms.injector.Injector.FieldInjector
+import com.suprnation.cms.deserialiser.TestDeserialiser
+import com.suprnation.cms.injector.Injector.{FieldInjector, SetterInjector}
+import com.suprnation.cms.injector.InjectorPreProcessor
+import com.suprnation.cms.tokens._
+import com.suprnation.to.TaxonomyType.Tax
 import com.suprnation.to._
-import com.suprnation.cms.tokens.{FieldToken, ShallowListToken}
 import org.scalatest.{FunSuite, _}
 
 class AstBuilderTest extends FunSuite with Matchers {
@@ -74,23 +77,46 @@ class AstBuilderTest extends FunSuite with Matchers {
   }
 
   test("shouldSupportTaxonomies") {
-
+    val clazz = classOf[TaxonomyType]
+    val postToken = astBuilder.tokenizeRoot(clazz)
+    postToken.postType shouldEqual "tt"
+    postToken.source shouldEqual clazz
+    postToken.fields shouldEqual List(
+      ParameterisedRelationshipToken("taxonomy", FieldInjector(clazz.getDeclaredField("terms")), classOf[java.util.List[Object]], classOf[Tax])
+    )
   }
 
   test("shouldSupportNestedObjects") {
-
+    val clazz = classOf[NestedType]
+    val postToken = astBuilder.tokenizeRoot(clazz)
+    postToken.postType shouldEqual "nt"
+    postToken.source shouldEqual clazz
+    postToken.fields shouldEqual List(
+      PostFieldToken("s", FieldInjector(clazz.getDeclaredField("join")), PostToken("s", classOf[SimpleFlatList], List(
+        ShallowListToken(FieldInjector(classOf[SimpleFlatList].getDeclaredField("postIds")), classOf[java.util.List[_]], classOf[java.lang.Integer])
+      )))
+    )
   }
 
-  // the below test does not pass because of functions not matching
-  //  test("shouldSupportCustomerDeserialisersAndSetters") {
-  //    val clazz = classOf[SetterAndInjectorTestType]
-  //    val postToken = astBuilder.tokenizeRoot(clazz)
-  //    val setter = classOf[SetterAndInjectorTestType].getDeclaredMethods.head
-  //    postToken.postType shouldEqual "setterAndInjectorTestType"
-  //    postToken.source shouldEqual clazz
-  //    postToken.fields shouldEqual List(
-  //      FieldToken("setter-and-preprocesser", SetterInjector(setter, InjectorPreProcessor(classOf[TestDeserialiser])), classOf[lang.Integer])
-  //    )
-  //  }
+  test("shouldSupportNestedListObjects") {
+    val clazz = classOf[NestedListType]
+    val postToken = astBuilder.tokenizeRoot(clazz)
+    postToken.postType shouldEqual "nlt"
+    postToken.source shouldEqual clazz
+    postToken.fields shouldEqual List(
+      ParameterisedListToken("s", FieldInjector(classOf[NestedListType].getDeclaredField("list")), classOf[java.util.List[Object]], classOf[SimpleFlatList])
+    )
+  }
+
+  test("shouldSupportCustomerDeserialisersAndSetters") {
+    val clazz = classOf[SetterAndInjectorTestType]
+    val postToken = astBuilder.tokenizeRoot(clazz)
+    val setter = classOf[SetterAndInjectorTestType].getDeclaredMethod("setSetterAndPreprocesser", classOf[java.lang.Integer])
+    postToken.postType shouldEqual "setterAndInjectorTestType"
+    postToken.source shouldEqual clazz
+    postToken.fields shouldEqual List(
+      FieldToken(SetterInjector(clazz.getDeclaredField("setterAndPreprocesser"), setter, InjectorPreProcessor(classOf[TestDeserialiser])), classOf[java.lang.Integer])
+    )
+  }
 
 }
