@@ -3,10 +3,11 @@ package com.suprnation.cms.executors
 import java.util
 
 import com.suprnation.cms.cache.{GlobalPostCache, _}
-import com.suprnation.cms.model.CmsPost
 import com.suprnation.cms.compiler.AstCompiler
+import com.suprnation.cms.interop._
 import com.suprnation.cms.log._
-import com.suprnation.cms.marker.{CmsPostClonable, CmsPostIdentifier}
+import com.suprnation.cms.marker.CmsPostIdentifier
+import com.suprnation.cms.model.CmsPost
 import com.suprnation.cms.repository.CmsPostMetaRepository
 import com.suprnation.cms.resolvers.{ChainedFieldResolver, ParameterisedListResolver, ParameterisedRelationshipResolver, PrimitiveFieldResolver}
 import com.suprnation.cms.result.{CachedValue, NotFoundInDb, Result, SearchInDatabase}
@@ -17,13 +18,12 @@ import com.suprnation.cms.types.PostId
 import com.suprnation.cms.utils.CmsReflectionUtils
 
 import scala.collection.JavaConverters._
-import com.suprnation.cms.interop._
 
 
 case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: CmsPostIdentifier]
 (postToken: PostToken[T],
  fieldExecutors: List[S],
- filters: List[PostId] = List.empty)
+ filters: Set[PostId] = Set.empty)
 (implicit acfFieldService: AcfFieldService,
  astCompiler: AstCompiler,
  cmsPostMetaRepository: CmsPostMetaRepository,
@@ -33,7 +33,7 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: C
  executionLogger: ExecutionLogger)
   extends ClassExecutionPlan[util.List[T]] {
 
-  override def filter(s: List[PostId]): ClassTokenExecutor[S, T] = {
+  override def filter(s: Set[PostId]): ClassTokenExecutor[S, T] = {
     new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters ++ s)
   }
 
@@ -50,7 +50,7 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: C
     val (loaded, newGlobalPostCache) = retrieveNonCachedPosts(globalPostCache, nonCachedPosts.toList, depth + 1)
     val foundCachedPosts = cachedPosts.collect { case CachedValue(value: T) => value }
     val mergedValues = foundCachedPosts ++ loaded.asScala
-    val missing = filters.toSet.diff(mergedValues.map(_.getWordpressId).toSet)
+    val missing = filters.diff(mergedValues.map(_.getWordpressId).toSet)
     logExecution(depth, postToken, MultipleResultCacheMetric(loaded.size(), nonCachedPosts.size - loaded.size()), multipart = true)
     (Result(mergedValues), missing.foldLeft(newGlobalPostCache)((acc, postId) =>
       acc + (postId -> NotFoundInDb)
@@ -73,7 +73,7 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: C
         } else {
           List()
         }
-        (loaded.map(l => globalPostCache(l)), remaining)
+        (loaded.map(l => globalPostCache(l)).toList, remaining)
       }
     (cachedPosts, nonCachedPosts)
   }
@@ -84,7 +84,7 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: C
         .after(ParameterisedListResolver(depth))
         .after(ParameterisedRelationshipResolver(depth))
 
-      val postIds: List[PostId] = nonCachedPosts.map(_.getWordpressId)
+      val postIds: Set[PostId] = nonCachedPosts.map(_.getWordpressId).toSet
       val newGlobalFieldCache: GlobalFieldCache = optimisedFieldResolver.beforeAllExecution(postToken.fields, postIds)(EmptyGlobalFieldCache, store).merge(
         nonCachedPosts.foldLeft(EmptyGlobalFieldCache)((globalContext, cmsPost) => {
           globalContext.merge(Map(cmsPost.getId -> EmptyFieldCache.merge(cmsPost, postToken.fields)))

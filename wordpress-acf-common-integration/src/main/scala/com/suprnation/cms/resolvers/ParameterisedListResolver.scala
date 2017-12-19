@@ -1,5 +1,7 @@
 package com.suprnation.cms.resolvers
 
+import java.util
+
 import com.suprnation.cms.cache.{GlobalFieldCache, _}
 import com.suprnation.cms.compiler.AstCompiler
 import com.suprnation.cms.log.{ExecutionLogger, MultipleResultCacheMetric}
@@ -15,9 +17,9 @@ import scala.collection.JavaConverters._
 
 case class ParameterisedListResolver(depth: Int)(implicit astCompiler: AstCompiler,
                                                  executionLogger: ExecutionLogger)
-  extends FieldResolver[List[PostId]] {
+  extends FieldResolver[Set[PostId]] {
 
-  override def beforeAllExecution(fields: List[CmsFieldToken], postIds: List[PostId])(implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): GlobalFieldCache = {
+  override def beforeAllExecution(fields: List[CmsFieldToken], postIds: Set[PostId])(implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): GlobalFieldCache = {
     val eligibleFields = fields.filter {
       case _: ParameterisedListToken[_] => true
       case _: PostFieldToken[_] => true
@@ -36,8 +38,8 @@ case class ParameterisedListResolver(depth: Int)(implicit astCompiler: AstCompil
           // Since this resolver is chained to a field resolver we are guaranteed that the shallow list is present.
 
           val firstParameterisedTypeToken = localTokens.head.asInstanceOf[CmsFieldTokenWithPostType[CmsPostIdentifier]]
-          val postIdsToSearch = getPostIds(eligibleFields, postIds, firstParameterisedTypeToken.parameterisedType)
-          logExecutionWithPostIds(depth, groupedPostType._2.head, MultipleResultCacheMetric(0, postIdsToSearch.toSet.size), postIdsToSearch)
+          val postIdsToSearch = getPostIds(eligibleFields, postIds, firstParameterisedTypeToken.parameterisedType).toSet
+          logExecutionWithPostIds(depth, groupedPostType._2.head, MultipleResultCacheMetric(0, postIdsToSearch.size), postIdsToSearch)
 
           if (postIdsToSearch.nonEmpty) {
             val clazz: Class[CmsPostIdentifier] = firstParameterisedTypeToken.parameterisedType
@@ -68,7 +70,7 @@ case class ParameterisedListResolver(depth: Int)(implicit astCompiler: AstCompil
     })
   }
 
-  def getPostIds[R](fields: List[CmsFieldToken], postIds: List[PostId], parameterisedType: Class[_ <: CmsPostIdentifier])
+  def getPostIds[R](fields: List[CmsFieldToken], postIds: Set[PostId], parameterisedType: Class[_ <: CmsPostIdentifier])
                    (implicit globalFieldCache: GlobalFieldCache): List[PostId] = {
     fields
       .filter {
@@ -90,7 +92,7 @@ case class ParameterisedListResolver(depth: Int)(implicit astCompiler: AstCompil
       })
   }
 
-  def mapFields[R](fields: List[CmsFieldToken], postIds: List[PostId], globalFieldCache: GlobalFieldCache, childrenFound: List[PostId])(mapFn: (PostId) => R): GlobalFieldCache = {
+  def mapFields[R](fields: List[CmsFieldToken], postIds: Set[PostId], globalFieldCache: GlobalFieldCache, childrenFound: List[PostId])(mapFn: (PostId) => R): GlobalFieldCache = {
     fields.foldLeft(globalFieldCache)((acc, field) => {
       val newGlobalFieldCache = postIds.foldLeft(acc)((acc, postId: PostId) => {
         val cachedShallowList = globalFieldCache(postId)(field)
@@ -98,8 +100,8 @@ case class ParameterisedListResolver(depth: Int)(implicit astCompiler: AstCompil
           case CachedValue(value) =>
             field match {
               case ParameterisedListToken(_, _, collectionClass, _) =>
-                val objects = TypeUtils.instantiateCollection(collectionClass)
-                value.asInstanceOf[java.util.Collection[PostId]].asScala.filter(childrenFound.contains(_)).foreach(postId => objects.add(mapFn(postId).asInstanceOf[Object]))
+                val objects = TypeUtils.instantiateCollection(collectionClass.asInstanceOf[Class[util.Collection[R]]])
+                value.asInstanceOf[java.util.Collection[PostId]].asScala.filter(childrenFound.contains(_)).foreach(postId => objects.add(mapFn(postId)))
                 Map(postId -> Map(field -> Result(objects)))
               case PostFieldToken(_, _, _) =>
                 val childPostId = value.asInstanceOf[PostId]

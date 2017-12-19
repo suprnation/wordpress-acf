@@ -2,6 +2,7 @@ package com.suprnation.cms.executors.fields
 
 import com.suprnation.cms.compiler.AstCompiler
 import com.suprnation.cms.executors.FieldExecutionPlan
+import com.suprnation.cms.interop._
 import com.suprnation.cms.log.{ExecutionLogger, NotFoundInCache}
 import com.suprnation.cms.marker.CmsPostIdentifier
 import com.suprnation.cms.result.Result
@@ -11,7 +12,7 @@ import com.suprnation.cms.tokens.{ParameterisedListToken, ShallowListToken}
 import com.suprnation.cms.types.PostId
 import com.suprnation.cms.utils.{CmsReflectionUtils, TypeUtils}
 
-import com.suprnation.cms.interop._
+import scala.collection.JavaConverters._
 
 case class ParameterisedListExecutor[T <: CmsPostIdentifier](override val fieldToken: ParameterisedListToken[T], override val filter: Option[PostId] = Option.empty)
                                                             (implicit
@@ -29,13 +30,13 @@ case class ParameterisedListExecutor[T <: CmsPostIdentifier](override val fieldT
       val postIds: java.util.List[PostId] = TypeUtils.convert(value,
         ShallowListToken(fieldToken.injector, fieldToken.source, classOf[PostId])
       ).asInstanceOf[java.util.List[PostId]]
-      resolveValue(postIds, depth)
+      resolveValue(postIds.asScala.toSet, depth)
     } else {
       Result(List.empty[T])
     }
   }
 
-  def resolveValue(postIds: List[PostId], depth: Int)(implicit store: GlobalPostCacheStore): Result[java.util.List[T]] = {
+  def resolveValue(postIds: Set[PostId], depth: Int)(implicit store: GlobalPostCacheStore): Result[java.util.List[T]] = {
     if (postIds.nonEmpty) {
       val innerCompiler = astCompiler.compile[T](fieldToken.parameterisedType)
       val compiler = innerCompiler.filter(postIds)

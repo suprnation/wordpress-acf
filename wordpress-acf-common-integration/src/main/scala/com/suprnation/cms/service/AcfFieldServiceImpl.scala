@@ -13,11 +13,11 @@ class AcfFieldServiceImpl(@Autowired() cmsPostMetaService: CmsPostMetaService)
   extends AcfFieldService {
 
   def getPrimitiveField[T](cmsFieldToken: CmsFieldToken, postId: PostId): Result[T] = {
-    this.getPrimitiveField(List(cmsFieldToken), List(postId))(postId)(cmsFieldToken)
+    this.getPrimitiveField(List(cmsFieldToken), Set(postId))(postId)(cmsFieldToken)
   }
 
 
-  def getPrimitiveField[T](cmsFieldTokens: List[CmsFieldToken], postIds: List[PostId]): Map[PostId, Map[CmsFieldToken, Result[T]]] = {
+  def getPrimitiveField[T](cmsFieldTokens: List[CmsFieldToken], postIds: Set[PostId]): Map[PostId, Map[CmsFieldToken, Result[T]]] = {
     val groupedFields = cmsFieldTokens.groupBy(_.fieldName)
     groupedFields.foreach {
       case (fieldName, tokens) =>

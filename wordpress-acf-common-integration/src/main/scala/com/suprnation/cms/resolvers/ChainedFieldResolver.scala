@@ -11,22 +11,22 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 object ChainedFieldResolver {
-  def apply(contextResolvers: FieldResolver[List[PostId]])(implicit cmsPostMetaRepository: CmsPostMetaRepository, executionLogger: log.ExecutionLogger) = new ChainedFieldResolver(List(contextResolvers))
+  def apply(contextResolvers: FieldResolver[Set[PostId]])(implicit cmsPostMetaRepository: CmsPostMetaRepository, executionLogger: log.ExecutionLogger) = new ChainedFieldResolver(List(contextResolvers))
 }
 
-class ChainedFieldResolver(contextResolvers: List[FieldResolver[List[PostId]]])
+class ChainedFieldResolver(contextResolvers: List[FieldResolver[Set[PostId]]])
                           (implicit cmsPostMetaRepository: CmsPostMetaRepository,
                            executionLogger: log.ExecutionLogger)
-  extends FieldResolver[List[PostId]] {
+  extends FieldResolver[Set[PostId]] {
 
 
-  def after(contextResolver: FieldResolver[List[PostId]]): ChainedFieldResolver = {
-    new ChainedFieldResolver(this.contextResolvers ++ List(contextResolver))
+  def after(contextResolver: FieldResolver[Set[PostId]]): ChainedFieldResolver = {
+    new ChainedFieldResolver(this.contextResolvers ++ Set(contextResolver))
   }
 
-  override def beforeAllExecution(fields: List[CmsFieldToken], filter: List[PostId])(implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): GlobalFieldCache = {
+  override def beforeAllExecution(fields: List[CmsFieldToken], filter: Set[PostId])(implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): GlobalFieldCache = {
     @tailrec
-    def beforeAllExecutionInner(contextResolvers: List[FieldResolver[List[PostId]]], globalExecutionContext: mutable.HashMap[PostId, FieldCache]): Unit =
+    def beforeAllExecutionInner(contextResolvers: List[FieldResolver[Set[PostId]]], globalExecutionContext: mutable.HashMap[PostId, FieldCache]): Unit =
       contextResolvers match {
         case Nil =>
         case head :: _ =>
@@ -36,7 +36,7 @@ class ChainedFieldResolver(contextResolvers: List[FieldResolver[List[PostId]]])
             }
 
           val newGlobalExecutionContext = head.beforeAllExecution(fields,
-            filter.toSet.diff(alreadyCachedGlobalExecutionContext.keySet).toList, // This is the actual set of interested posts which have the missing fields.
+            filter.diff(alreadyCachedGlobalExecutionContext.keySet), // This is the actual set of interested posts which have the missing fields.
           )(globalExecutionContext.toMap, store)
 
           beforeAllExecutionInner(contextResolvers.tail, globalExecutionContext ++= newGlobalExecutionContext)

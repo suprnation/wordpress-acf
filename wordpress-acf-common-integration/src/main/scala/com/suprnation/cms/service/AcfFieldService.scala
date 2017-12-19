@@ -10,7 +10,7 @@ trait AcfFieldService {
   // Primitive Fields - this includes shallow lists
   def getPrimitiveField[T](cmsFieldToken: CmsFieldToken, postId: PostId): Result[T]
 
-  def getPrimitiveField[T](cmsFieldTokens: List[CmsFieldToken], postIds: List[PostId]): Map[PostId, Map[CmsFieldToken, Result[T]]]
+  def getPrimitiveField[T](cmsFieldTokens: List[CmsFieldToken], postIds: Set[PostId]): Map[PostId, Map[CmsFieldToken, Result[T]]]
   def processPrimitiveField[T](cmsPostMeta: CmsPostMeta, cmsFieldToken: CmsFieldToken): Result[T]
 
   // Lists
