@@ -17,7 +17,7 @@ trait ExecutionPlan[T, S, C <: MutableCache[_, _]] extends ExecutorLogging {
 
 }
 
-trait ClassExecutionPlan[T] extends ExecutionPlan[T, List[PostId], GlobalPostCacheStore]
+trait ClassExecutionPlan[T] extends ExecutionPlan[T, Set[PostId], GlobalPostCacheStore]
 
 abstract class FieldExecutionPlan[+R <: CmsFieldToken, T](val filter: Option[PostId] = Option.empty) extends ExecutionPlan[T, Option[PostId], GlobalPostCacheStore] {
   def fieldToken: R

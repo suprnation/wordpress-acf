@@ -63,8 +63,8 @@ object TypeUtils {
     PrimitiveTypeConverter.convert(value, targetClass, annotations.getOrElse(List.empty))
   }
 
-  def convertToEnum[T](collectionClass: Class[_ <: util.Collection[Object]], values: util.List[T], parameterisedType: Class[Enum[_]]): util.Collection[T] = {
-    val objects = instantiateCollection(collectionClass)
+  def convertToEnum[T](collectionClass: Class[_ <: util.Collection[_]], values: util.List[T], parameterisedType: Class[Enum[_]]): util.Collection[T] = {
+    val objects = instantiateCollection(collectionClass.asInstanceOf[Class[util.Collection[Object]]])
     values.asScala.foreach(value => objects.add(CmsReflectionUtils.instantiateEnum(
       parameterisedType, value.toString)))
     objects.asInstanceOf[util.Collection[T]]

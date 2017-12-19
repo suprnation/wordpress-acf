@@ -9,8 +9,8 @@ import com.suprnation.cms.types.PostId
 
 case class PrimitiveFieldResolver(depth: Int)(implicit acfFieldService: AcfFieldService,
                                               executionLogger: ExecutionLogger)
-  extends FieldResolver[List[PostId]] {
-  override def beforeAllExecution(fields: List[CmsFieldToken], filter: List[PostId])(implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): GlobalFieldCache = {
+  extends FieldResolver[Set[PostId]] {
+  override def beforeAllExecution(fields: List[CmsFieldToken], filter: Set[PostId])(implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): GlobalFieldCache = {
     val eligibleFields = fields.filter {
       case _: FieldToken => true
       case _: ShallowListToken[_] => true

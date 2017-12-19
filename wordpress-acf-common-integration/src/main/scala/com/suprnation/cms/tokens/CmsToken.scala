@@ -49,7 +49,7 @@ case class PostFieldToken[T <: CmsPostIdentifier](postType: String, injector: In
   override def toString: String = s"${super.toString}::Post[$postType]"
 }
 
-case class ParameterisedListToken[T <: CmsPostIdentifier](postType: String, injector: Injector, source: Class[_ <: java.util.Collection[Object]], parameterisedType: Class[T]) extends CmsFieldTokenWithPostType[T] {
+case class ParameterisedListToken[T <: CmsPostIdentifier](postType: String, injector: Injector, source: Class[_ <: java.util.Collection[_]], parameterisedType: Class[T]) extends CmsFieldTokenWithPostType[T] {
   override def toString: String = s"$fieldName:${source.getSimpleName}[${parameterisedType.getSimpleName}]::Post[$postType]"
 }
 
@@ -57,7 +57,7 @@ trait RelationshipToken extends CmsFieldToken {
   def taxonomy: Taxonomy
 }
 
-case class ParameterisedRelationshipToken[T](override val taxonomy: Taxonomy, injector: Injector, source: Class[_ <: java.util.Collection[Object]], parameterisedType: Class[T]) extends RelationshipToken {
+case class ParameterisedRelationshipToken[T](override val taxonomy: Taxonomy, injector: Injector, source: Class[_ <: java.util.Collection[_]], parameterisedType: Class[T]) extends RelationshipToken {
   override def toString: String = s"$fieldName:${source.getSimpleName}[${parameterisedType.getSimpleName}]::Taxonomy[$taxonomy]"
 }
 

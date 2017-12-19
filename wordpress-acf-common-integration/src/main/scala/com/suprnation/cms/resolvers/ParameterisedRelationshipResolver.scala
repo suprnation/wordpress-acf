@@ -14,10 +14,10 @@ import com.suprnation.cms.utils.TypeUtils
 case class ParameterisedRelationshipResolver(depth: Int)
                                             (implicit cmsRelationshipService: CmsRelationshipService,
                                              executionLogger: ExecutionLogger)
-  extends FieldResolver[List[PostId]] {
+  extends FieldResolver[Set[PostId]] {
   implicit val relationshipResolver: ParameterisedRelationshipResolver = this
 
-  override def beforeAllExecution(fields: List[CmsFieldToken], filter: List[PostId])(implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): GlobalFieldCache = {
+  override def beforeAllExecution(fields: List[CmsFieldToken], filter: Set[PostId])(implicit globalFieldCache: GlobalFieldCache, store: GlobalPostCacheStore): GlobalFieldCache = {
     if (filter.isEmpty || !fields.exists {
       case ParameterisedRelationshipToken(_, _, _, _) => true
       case _ => false
