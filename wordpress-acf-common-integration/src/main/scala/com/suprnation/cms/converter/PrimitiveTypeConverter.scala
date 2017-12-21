@@ -4,9 +4,10 @@ import java.lang
 import java.lang.annotation.Annotation
 
 import com.suprnation.cms.annotations.{ForceUtc, Formatted}
-import com.suprnation.cms.enums.Formatting.{NewLineToBR, NoFormatting, HtmlToTags}
+import com.suprnation.cms.enums.Formatting.{HtmlToTags, NewLineToBR, NoFormatting}
 import com.suprnation.cms.utils.CmsReflectionUtils
 import org.joda.time.DateTime
+import org.springframework.util.StringUtils
 
 object PrimitiveTypeConverter {
 
@@ -38,17 +39,17 @@ private case class StringConverter() extends PrimitiveTypeConverter {
 
 private case class IntegerConverter() extends PrimitiveTypeConverter {
   override def convert: (String, List[_], Class[_]) => Integer = (value, _, _) =>
-    if (value == null || value == "") null else lang.Integer.valueOf(value)
+    if (StringUtils.isEmpty(value)) null else lang.Integer.valueOf(value)
 }
 
 private case class LongConverter() extends PrimitiveTypeConverter {
   override def convert: (String, List[_], Class[_]) => lang.Long = (value, _, _) =>
-    if (value == null || value == "") null else lang.Long.valueOf(value)
+    if (StringUtils.isEmpty(value)) null else lang.Long.valueOf(value)
 }
 
 private case class DoubleConverter() extends PrimitiveTypeConverter {
   override def convert: (String, List[_], Class[_]) => lang.Double = (value, _, _) =>
-    if (value == null || value == "") null else lang.Double.valueOf(value)
+    if (StringUtils.isEmpty(value)) null else lang.Double.valueOf(value)
 }
 
 private case class BooleanConverter() extends PrimitiveTypeConverter {
@@ -73,10 +74,13 @@ private case class EnumConverter() extends PrimitiveTypeConverter {
 
 private case class DateTimeConverter(forceUtc: Boolean) extends PrimitiveTypeConverter {
   override def convert: (String, List[_], Class[_]) => DateTime = (value, _, _) => {
-    if (!forceUtc || value.contains("T") && value.contains("Z")) {
-      DateTime.parse(value)
-    } else {
-      DateTime.parse(if (value.contains(" ")) value.replace(" ", "T") + "Z" else value + "T00:00.000000Z")
+    if (StringUtils.isEmpty(value)) null
+    else {
+      if (!forceUtc || value.contains("T") && value.contains("Z")) {
+        DateTime.parse(value)
+      } else {
+        DateTime.parse(if (value.contains(" ")) value.replace(" ", "T") + "Z" else value + "T00:00.000000Z")
+      }
     }
   }
 }
