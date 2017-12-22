@@ -3,7 +3,7 @@ package com.suprnation.cms.converter
 import java.lang
 import java.lang.annotation.Annotation
 
-import com.suprnation.cms.annotations.{ForceUtc, Formatted}
+import com.suprnation.cms.annotations.{ForceUtc, Formatted, NumberCsv}
 import com.suprnation.cms.enums.Formatting.{HtmlToTags, NewLineToBR, NoFormatting}
 import com.suprnation.cms.utils.CmsReflectionUtils
 import org.joda.time.DateTime
@@ -14,6 +14,7 @@ object PrimitiveTypeConverter {
   private def converters: Map[(Class[_], List[Class[_]]), PrimitiveTypeConverter] = Map(
     (classOf[String], List.empty) -> StringConverter(),
     (classOf[String], List(classOf[Formatted])) -> FormattedConverter(),
+    (classOf[String], List(classOf[NumberCsv])) -> NumberCsvConverter(),
     (classOf[lang.Integer], List.empty) -> IntegerConverter(),
     (classOf[lang.Long], List.empty) -> LongConverter(),
     (classOf[lang.Double], List.empty) -> DoubleConverter(),
@@ -102,4 +103,16 @@ private case class FormattedConverter() extends PrimitiveTypeConverter {
     value.replace("&", "&amp;").replace("'", "&#039;").replace("\"", "&quot;")
   }
 
+}
+
+private case class NumberCsvConverter()() extends PrimitiveTypeConverter {
+  override def convert: (String, List[_], Class[_]) => String = (value, _, _) => {
+    if (StringUtils.isEmpty(value)) value
+    else {
+      var csv = value.replaceAll("([^(\\d|,)]+)", ",")
+      if (csv.startsWith(",")) csv = csv.substring(1)
+      if (csv.endsWith(",")) csv = csv.substring(0, csv.length - 1)
+      csv
+    }
+  }
 }
