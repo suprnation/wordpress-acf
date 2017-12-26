@@ -22,7 +22,7 @@ class AstCompiler(implicit
   private implicit val self: AstCompiler = this
   private implicit val executionLogger: ExecutionLogger = ExecutionLogger.IgnoreAllExecutionLogger
 
-  def compile[T <: CmsPostIdentifier](clazz: Class[T]): ClassTokenExecutor[FieldExecutionPlan[CmsFieldToken, _], T] = {
+  def compile[T](clazz: Class[T]): ClassTokenExecutor[FieldExecutionPlan[CmsFieldToken, _], T] = {
     val token = this.astBuilder.tokenize(clazz)
     token match {
       case postToken: PostToken[T] =>

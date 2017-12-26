@@ -37,24 +37,46 @@ case class ParameterisedListResolver(depth: Int)(implicit astCompiler: AstCompil
           // For each of the token we will try to retrieve them from the cache.
           // Since this resolver is chained to a field resolver we are guaranteed that the shallow list is present.
 
-          val firstParameterisedTypeToken = localTokens.head.asInstanceOf[CmsFieldTokenWithPostType[CmsPostIdentifier]]
+          val firstParameterisedTypeToken = localTokens.head.asInstanceOf[CmsFieldTokenWithPostType[AnyRef]]
           val postIdsToSearch = getPostIds(eligibleFields, postIds, firstParameterisedTypeToken.parameterisedType).toSet
           logExecutionWithPostIds(depth, groupedPostType._2.head, MultipleResultCacheMetric(0, postIdsToSearch.size), postIdsToSearch)
-
           if (postIdsToSearch.nonEmpty) {
-            val clazz: Class[CmsPostIdentifier] = firstParameterisedTypeToken.parameterisedType
+            val clazz = firstParameterisedTypeToken.parameterisedType
 
-            val result = astCompiler.compile(clazz).filter(postIdsToSearch).execute(depth + 1)(store)
-            val childrenFound = result match {
-              case CachedValue(value) =>
-                value.asScala.map(_.getWordpressId).toList
-              case _ => List()
-            }
+            val (groupedExtractedResults, childrenFound) =
+              if (classOf[CmsPostIdentifier].isAssignableFrom(clazz)) {
+                val result = astCompiler.compile(clazz).filter(postIdsToSearch).execute(depth + 1)(store)
+                val childrenFound = result match {
+                  case CachedValue(value) =>
+                    value.asScala.filter(_.isInstanceOf[CmsPostIdentifier]).map(_.asInstanceOf[CmsPostIdentifier].getWordpressId).toList
+                  case _ => List()
+                }
 
-            val groupedExtractedResults = (result match {
-              case CachedValue(value) => value.asScala
-              case _ => List.empty[CmsPostIdentifier]
-            }).groupBy(cmsPost => cmsPost.getWordpressId)
+                val groupedExtractedResults = (result match {
+                  case CachedValue(value) => value.asScala.filter(_.isInstanceOf[CmsPostIdentifier]).map(_.asInstanceOf[CmsPostIdentifier])
+                  case _ => List.empty[CmsPostIdentifier]
+                }).groupBy(cmsPost => cmsPost.getWordpressId)
+                (groupedExtractedResults, childrenFound)
+              } else {
+                val groupedExtractedResults =
+                  postIdsToSearch.map(postId => postId -> astCompiler.compile(clazz).filter(Set(postId)).execute(depth + 1)(store))
+                  .map {
+                    case (postId, result) => result match {
+                      case CachedValue(post) => postId -> post.asScala.headOption
+                      case _ => postId -> None
+                    }
+                  }
+                  .filter {
+                    case (_, Some(_)) => true
+                    case _ => false
+                  }
+                  .map {
+                    case (postId, presentOptional) => postId -> List(presentOptional.get)
+                  }
+                  .toMap
+                val childrenFound = groupedExtractedResults.keys.toList
+                (groupedExtractedResults, childrenFound)
+              }
 
             mapFields(localTokens, postIds, globalAcc, childrenFound)((postId) => {
               groupedExtractedResults.get(postId) match {
@@ -62,7 +84,8 @@ case class ParameterisedListResolver(depth: Int)(implicit astCompiler: AstCompil
                 case _ => throw new IllegalStateException("Expected to find result in the global cache.  ")
               }
             })
-          } else {
+          }
+          else {
             EmptyGlobalFieldCache
           }
       }
@@ -70,7 +93,7 @@ case class ParameterisedListResolver(depth: Int)(implicit astCompiler: AstCompil
     })
   }
 
-  def getPostIds[R](fields: List[CmsFieldToken], postIds: Set[PostId], parameterisedType: Class[_ <: CmsPostIdentifier])
+  def getPostIds[R](fields: List[CmsFieldToken], postIds: Set[PostId], parameterisedType: Class[_])
                    (implicit globalFieldCache: GlobalFieldCache): List[PostId] = {
     fields
       .filter {

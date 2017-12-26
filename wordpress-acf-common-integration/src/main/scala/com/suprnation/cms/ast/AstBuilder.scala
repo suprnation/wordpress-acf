@@ -44,7 +44,7 @@ class AstBuilder() {
 
   def isTaxonomy(clazz: Class[_]): Boolean = CmsReflectionUtils.getAnnotationValue(clazz, classOf[Taxonomy], (taxonomy: Taxonomy) => taxonomy.value).isDefined
 
-  def tokenizeRoot[T <: CmsPostIdentifier](implicit clazz: Class[T]): PostToken[T] = {
+  def tokenizeRoot[T](implicit clazz: Class[T]): PostToken[T] = {
     val token = tokenize(clazz)
     token match {
       case pt: PostToken[T] => pt
@@ -52,7 +52,7 @@ class AstBuilder() {
     }
   }
 
-  def tokenize[T <: CmsPostIdentifier](implicit clazz: Class[T]): CmsToken = {
+  def tokenize[T](implicit clazz: Class[T]): CmsToken = {
     val postType = CmsReflectionUtils.getStrictAnnotationValue(clazz, classOf[PostType], (pt: PostType) => pt.value())
     val token = CmsReflectionUtils.getAllFieldsIncludedInherited(clazz)
       .filterNot(field => java.lang.reflect.Modifier.isStatic(field.getModifiers))
