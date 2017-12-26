@@ -20,7 +20,7 @@ import com.suprnation.cms.utils.CmsReflectionUtils
 import scala.collection.JavaConverters._
 
 
-case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: CmsPostIdentifier]
+case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T ]
 (postToken: PostToken[T],
  fieldExecutors: List[S],
  filters: Set[PostId] = Set.empty)
@@ -50,7 +50,7 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: C
     val (loaded, newGlobalPostCache) = retrieveNonCachedPosts(globalPostCache, nonCachedPosts.toList, depth + 1)
     val foundCachedPosts = cachedPosts.collect { case CachedValue(value: T) => value }
     val mergedValues = foundCachedPosts ++ loaded.asScala
-    val missing = filters.diff(mergedValues.map(_.getWordpressId).toSet)
+    val missing = filters.diff(mergedValues.filter(_.isInstanceOf[CmsPostIdentifier]).map(_.asInstanceOf[CmsPostIdentifier].getWordpressId).toSet)
     logExecution(depth, postToken, MultipleResultCacheMetric(loaded.size(), nonCachedPosts.size - loaded.size()), multipart = true)
     (Result(mergedValues), missing.foldLeft(newGlobalPostCache)((acc, postId) =>
       acc + (postId -> NotFoundInDb)
@@ -101,7 +101,7 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: C
           val (optional, mergedFilterContext) = getFromCacheOrSearch(cmsPost.getWordpressId, executor, depth + 1)(globalExecutionContext, store)
           optional match {
             case CachedValue(fieldValue: Object) =>
-              executor.fieldToken.injector.inject(instance, fieldValue)
+              executor.fieldToken.injector.inject(instance.asInstanceOf[AnyRef], fieldValue)
               mergedFilterContext
             case _ =>
               mergedFilterContext
@@ -110,7 +110,8 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T <: C
       })
 
       // Fold in the results to the global post cache so that we can find them later.
-      val newGlobalPostCache = resolvedPosts.foldLeft(globalPostCache)((acc, postInstance) => {
+      val newGlobalPostCache = resolvedPosts.filter(_.isInstanceOf[CmsPostIdentifier]).map(_.asInstanceOf[CmsPostIdentifier])
+        .foldLeft(globalPostCache)((acc, postInstance) => {
         acc + (postInstance.getWordpressId -> Result(postInstance))
       })
 

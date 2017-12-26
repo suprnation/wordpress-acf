@@ -5,7 +5,6 @@ import java.{lang, util}
 import com.suprnation.cms.compiler.AstCompiler
 import com.suprnation.cms.executors.FieldExecutionPlan
 import com.suprnation.cms.log.{ExecutionLogger, NotFoundInCache}
-import com.suprnation.cms.marker.CmsPostIdentifier
 import com.suprnation.cms.result.{CachedValue, NotFoundInDb, Result, SearchInDatabase}
 import com.suprnation.cms.service.{CmsPostMetaService, CmsPostService}
 import com.suprnation.cms.store.GlobalPostCacheStore
@@ -14,7 +13,7 @@ import com.suprnation.cms.types.PostId
 
 import scala.collection.JavaConverters._
 
-case class PostFieldTokenExecutor[T <: CmsPostIdentifier](override val fieldToken: PostFieldToken[T], override val filter: Option[PostId] = Option.empty)
+case class PostFieldTokenExecutor[T](override val fieldToken: PostFieldToken[T], override val filter: Option[PostId] = Option.empty)
                                                          (implicit
                                                           astCompiler: AstCompiler,
                                                           cmsPostService: CmsPostService,
