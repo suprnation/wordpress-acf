@@ -27,11 +27,11 @@ class AstCompiler(implicit
     token match {
       case postToken: PostToken[T] =>
         val executors = postToken.fields.map {
-          case (fieldToken: FieldToken) => PrimitiveFieldTokenExecutor(fieldToken)
-          case (flatListToken: ShallowListToken[_]) => PrimitiveFieldTokenExecutor(flatListToken)
-          case (parameterisedListToken: ParameterisedListToken[CmsPostIdentifier]) => ParameterisedListExecutor[CmsPostIdentifier](parameterisedListToken)
-          case (postToken: PostFieldToken[_]) => PostFieldTokenExecutor(postToken)
-          case (parameterisedRelationshipExecutor: ParameterisedRelationshipToken[_]) => ParameterisedRelationshipExecutor(parameterisedRelationshipExecutor)
+          case fieldToken: FieldToken => PrimitiveFieldTokenExecutor(fieldToken)
+          case flatListToken: ShallowListToken[_] => PrimitiveFieldTokenExecutor(flatListToken)
+          case parameterisedListToken: ParameterisedListToken[CmsPostIdentifier] => ParameterisedListExecutor[CmsPostIdentifier](parameterisedListToken)
+          case postToken: PostFieldToken[_] => PostFieldTokenExecutor(postToken)
+          case parameterisedRelationshipExecutor: ParameterisedRelationshipToken[_] => ParameterisedRelationshipExecutor(parameterisedRelationshipExecutor)
         }
         ClassTokenExecutor(postToken, executors)
     }

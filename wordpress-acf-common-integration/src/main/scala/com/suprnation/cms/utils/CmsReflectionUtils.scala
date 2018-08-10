@@ -1,6 +1,6 @@
 package com.suprnation.cms.utils
 
-import java.lang.reflect.{Field, Method, ParameterizedType, Type}
+import java.lang.reflect._
 
 import com.fasterxml.jackson.annotation.{JsonIgnore, JsonProperty}
 import com.suprnation.cms.annotations.{Alias, Cast}
@@ -120,10 +120,16 @@ object CmsReflectionUtils {
     }
   }
 
-  def instantiateEnum(enumClass: Class[Enum[_]], value: String): AnyRef = {
-    enumClass.getMethod("valueOf", classOf[String]).invoke(null, value)
+  def instantiateEnum(enumClass: Class[_], value: String): AnyRef = {
+    this.hasStaticMethod(enumClass, "getEnum") match {
+      case Some(method) => method.invoke(null, value)
+      case None => enumClass.getMethod("valueOf", classOf[String]).invoke(null, value)
+    }
   }
 
   def capitalize(str: String): String = str.charAt(0).toUpper + str.substring(1)
 
+  def hasStaticMethod(clazz: Class[_], methodName: String): Option[Method] = {
+    clazz.getMethods.toList.find(method => method.getName == methodName && Modifier.isStatic(method.getModifiers))
+  }
 }
