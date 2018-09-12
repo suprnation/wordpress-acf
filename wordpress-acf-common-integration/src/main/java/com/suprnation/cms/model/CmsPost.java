@@ -66,6 +66,18 @@ public class CmsPost implements Cloneable, Serializable, CmsPostIdentifier {
         this.id = id;
     }
 
+    /**
+     * To be used by tests only
+     * @param id the Post ID
+     */
+    @Deprecated
+    public CmsPost(Long id, String modifiedGmt, String type, String status) {
+        this.id = id;
+        this.modifiedGmt = modifiedGmt;
+        this.type = type;
+        this.status = status;
+    }
+
     public CmsPostStatus getStatus() {
         return CmsPostStatus.forName(this.status);
     }

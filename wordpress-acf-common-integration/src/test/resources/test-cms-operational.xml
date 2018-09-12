@@ -1,0 +1,72 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns="http://www.springframework.org/schema/beans" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+          http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+    <jpa:repositories base-package="com.suprnation.cms"
+                      entity-manager-factory-ref="testEntityManagerFactory"
+                      transaction-manager-ref="testTransactionManager"/>
+
+    <tx:annotation-driven transaction-manager="testTransactionManager"/>
+
+    <bean id="testDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="testHikariConfig"/>
+    </bean>
+
+    <bean id="testHikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="initializationFailFast" value="false"/>
+        <property name="idleTimeout" value="10000"/>
+        <property name="connectionTimeout" value="5000"/>
+        <property name="maxLifetime" value="60000"/>
+        <property name="maximumPoolSize" value="10"/>
+        <property name="connectionTestQuery" value="SELECT 1"/>
+        <property name="jdbcUrl" value="jdbc:h2:mem:test"/>
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="user">sa</prop>
+                <prop key="password"/>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="testEntityManagerFactory"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="persistenceUnitName" value="cms"/>
+        <property name="dataSource" ref="testDataSource"/>
+        <property name="packagesToScan" value="com.suprnation.cms"/>
+        <property name="jpaPropertyMap">
+            <map>
+                <entry key="hibernate.cache.use_query_cache" value="false"/>
+                <entry key="hibernate.cache.use_second_level_cache" value="false"/>
+                <entry key="hibernate.cache.region.factory_class"
+                       value="net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory"/>
+                <entry key="hibernate.generate_statistics" value="false"/>
+                <entry key="hibernate.cache.use_minimal_puts" value="true"/>
+                <entry key="hibernate.default_batch_fetch_size" value="8"/>
+                <entry key="hibernate.jdbc.batch_size" value="20"/>
+                <entry key="hibernate.connection.handling_mode"
+                       value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION"/>
+                <entry key="hibernate.connection.release_mode" value="after_transaction"/>
+                <entry key="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+                <entry key="hibernate.jdbc.time_zone" value="UTC"/>
+            </map>
+        </property>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="database" value="DEFAULT"/>
+                <property name="databasePlatform" value="org.hibernate.dialect.H2Dialect"/>
+                <property name="showSql" value="true"/>
+                <property name="generateDdl" value="true"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="testTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="testEntityManagerFactory"/>
+        <qualifier value="testTransactionManager"/>
+    </bean>
+
+</beans>
