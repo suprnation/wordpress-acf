@@ -16,6 +16,7 @@ import com.suprnation.cms.store.GlobalPostCacheStore
 import com.suprnation.cms.tokens._
 import com.suprnation.cms.types.PostId
 import com.suprnation.cms.utils.CmsReflectionUtils
+import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
 
@@ -23,7 +24,9 @@ import scala.collection.JavaConverters._
 case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T ]
 (postToken: PostToken[T],
  fieldExecutors: List[S],
- filters: Set[PostId] = Set.empty)
+ filters: Set[PostId] = Set.empty,
+ gte: Option[DateTime] = Option.empty,
+ lte: Option[DateTime] = Option.empty)
 (implicit acfFieldService: AcfFieldService,
  astCompiler: AstCompiler,
  cmsPostMetaRepository: CmsPostMetaRepository,
@@ -34,7 +37,21 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T ]
   extends ClassExecutionPlan[util.List[T]] {
 
   override def filter(s: Set[PostId]): ClassTokenExecutor[S, T] = {
-    new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters ++ s)
+    if (this.gte.nonEmpty || this.lte.nonEmpty)
+      throw new IllegalStateException("Cannot use Post Id filtering when GTE and LTE operators are defined.  ")
+    new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters ++ s, this.gte, this.lte)
+  }
+
+  def gte(gte: DateTime):ClassTokenExecutor[S, T]  = {
+    if (this.filters.nonEmpty)
+      throw new IllegalStateException("Cannot use GTE filter with Post Id filtering")
+    new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters, Option(gte), this.lte)
+  }
+
+  def lte(lte: DateTime): ClassTokenExecutor[S, T] = {
+    if (this.filters.nonEmpty)
+      throw new IllegalStateException("Cannot use GTE filter with Post Id filtering")
+    new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters, this.gte, Option(lte))
   }
 
   def execute(depth: Int = 0)(implicit store: GlobalPostCacheStore): Result[java.util.List[T]] = {
@@ -60,7 +77,17 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T ]
   private[this] def getCachedAndNonCachedPosts(globalPostCache: GlobalPostCache): (List[Result[CmsPostIdentifier]], Iterable[CmsPost]) = {
     val (cachedPosts, nonCachedPosts) =
       if (filters.isEmpty) {
-        val postsFoundInDatabase = cmsPostService.findByType(postToken.postType)
+
+        val postsFoundInDatabase = if (gte.nonEmpty && lte.nonEmpty) {
+          cmsPostService.findByTypeAndModifiedDateGteAndModifiedDateLte(postToken.postType, gte.get, lte.get)
+        } else if (gte.nonEmpty && lte.isEmpty) {
+          cmsPostService.findByTypeAndModifiedDateGte(postToken.postType, gte.get)
+        } else if (gte.isEmpty && lte.nonEmpty) {
+          cmsPostService.findByTypeAndModifiedDateLte(postToken.postType, lte.get)
+        } else {
+          cmsPostService.findByType(postToken.postType)
+        }
+
         val (loaded, remaining) = postsFoundInDatabase.partition(cmsPost => globalPostCache.keySet.contains(cmsPost.getWordpressId))
         val loadedFromCache = loaded.map(cmsPost => globalPostCache(cmsPost.getWordpressId)).toList
         (loadedFromCache, remaining)
