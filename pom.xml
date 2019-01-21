@@ -6,7 +6,7 @@
 
     <groupId>com.suprnation</groupId>
     <artifactId>wordpress-acf</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
     <modules>
         <module>wordpress-acf-common</module>
         <module>wordpress-acf-common-integration</module>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.suprnation</groupId>
             <artifactId>wordpress-acf-common</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -135,7 +135,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.16</version>
+            <version>1.18.4</version>
         </dependency>
 
         <dependency>
@@ -147,6 +147,12 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>2.8.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
         </dependency>
 
         <dependency>
@@ -191,7 +197,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.4.4</version>
                 <configuration>
                     <args>
                         <arg>-feature</arg>
@@ -219,10 +225,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.8.0</version>
                 <configuration>
-                    <target>1.8</target>
-                    <source>1.8</source>
+                    <target>11</target>
+                    <source>11</source>
                     <compilerArgument>-parameters</compilerArgument>
                 </configuration>
             </plugin>
