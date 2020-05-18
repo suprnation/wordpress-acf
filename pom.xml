@@ -6,7 +6,7 @@
 
     <groupId>com.suprnation</groupId>
     <artifactId>wordpress-acf</artifactId>
-    <version>3.0-SNAPSHOT</version>
+    <version>4.0-SNAPSHOT</version>
     <modules>
         <module>wordpress-acf-common</module>
         <module>wordpress-acf-common-integration</module>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.suprnation</groupId>
             <artifactId>wordpress-acf-common</artifactId>
-            <version>3.0-SNAPSHOT</version>
+            <version>4.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

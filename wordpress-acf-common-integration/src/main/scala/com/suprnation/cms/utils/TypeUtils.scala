@@ -13,13 +13,13 @@ object TypeUtils {
 
   def getType(clazz: Class[_]): Class[_] = {
     clazz match {
-      case (java.lang.Long.TYPE) =>
+      case java.lang.Long.TYPE =>
         classOf[java.lang.Long]
-      case (java.lang.Integer.TYPE) =>
+      case java.lang.Integer.TYPE =>
         classOf[java.lang.Integer]
-      case (java.lang.Boolean.TYPE) =>
+      case java.lang.Boolean.TYPE =>
         classOf[java.lang.Boolean]
-      case (java.lang.Double.TYPE) =>
+      case java.lang.Double.TYPE =>
         classOf[java.lang.Double]
       case _ =>
         clazz
@@ -35,7 +35,7 @@ object TypeUtils {
     case ParameterisedListToken(_, injector, collectionClass, _) =>
       convert(value, ShallowListToken(injector, collectionClass, classOf[java.lang.Long]))
     case PostFieldToken(_, _, _) =>
-      if (value.startsWith("null")) {
+      if (value.startsWith("null") || org.springframework.util.StringUtils.isEmpty(value)) {
         null
       } else {
         java.lang.Long.valueOf(value)
