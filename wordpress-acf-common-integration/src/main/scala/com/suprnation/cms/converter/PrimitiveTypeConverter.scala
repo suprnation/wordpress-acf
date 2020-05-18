@@ -61,7 +61,7 @@ private case class BooleanConverter() extends PrimitiveTypeConverter {
 }
 
 private case class EnumConverter() extends PrimitiveTypeConverter {
-  override def convert: (String, List[_], Class[_]) => Object = (value, _, targetClass) => if (value != null && value.nonEmpty)
+  override def convert: (String, List[_], Class[_]) => Object = (value, _, targetClass) => if (value != null)
     try {
       CmsReflectionUtils.instantiateEnum(targetClass.asInstanceOf[Class[Enum[_]]], value)
     } catch {
