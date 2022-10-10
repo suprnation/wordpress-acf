@@ -17,10 +17,10 @@ class CmsRelationshipServiceImpl @Autowired()(cmsTermRelationshipRepository: Cms
     if (postIds.isEmpty || taxonomies.isEmpty) Map.empty
     else {
       val taxonomyToLongToStrings: Map[Taxonomy, PostRelationshipCache] = cmsTermRelationshipRepository.getRelationshipsForPost(postIds.asJava, taxonomies.asJava).asScala
-        .groupBy(_.getTerms)
+        .groupBy(_.getTaxonomy)
         .map {
-          case (taxonomy, results) =>
-            taxonomy -> results.map(row => (row.getPostId, wrapToResult(row.getTaxonomy.split(",").toSet)))
+          case (taxonomy: Taxonomy, results) =>
+            taxonomy -> results.map(relationship => (relationship.getPostId, wrapToResult(relationship.getTerms.split(",").toSet)))
               .toMap
         }
 

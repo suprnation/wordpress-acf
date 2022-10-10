@@ -17,7 +17,6 @@
     </bean>
 
     <bean id="testHikariConfig" class="com.zaxxer.hikari.HikariConfig">
-        <property name="initializationFailFast" value="false"/>
         <property name="idleTimeout" value="10000"/>
         <property name="connectionTimeout" value="5000"/>
         <property name="maxLifetime" value="60000"/>

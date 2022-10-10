@@ -5,7 +5,7 @@
     <parent>
         <artifactId>wordpress-acf</artifactId>
         <groupId>com.suprnation</groupId>
-        <version>4.1-SNAPSHOT</version>
+        <version>4.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -103,7 +103,7 @@
 
         <dependency>
             <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-java8-compat_2.12</artifactId>
+            <artifactId>scala-java8-compat_2.13</artifactId>
         </dependency>
 
         <dependency>
@@ -138,7 +138,7 @@
 
         <dependency>
             <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_2.12</artifactId>
+            <artifactId>scalatest_2.13</artifactId>
             <scope>test</scope>
         </dependency>
 
