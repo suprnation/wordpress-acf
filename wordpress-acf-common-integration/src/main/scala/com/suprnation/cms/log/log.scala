@@ -154,84 +154,84 @@ package object log {
     type LogColour = String
 
     // Reset
-    val RESET = "\033[0m" // Text Reset
+    val RESET = "\u001b[0m" // Text Reset
 
     // Regular Colors
-    val BLACK = "\033[030m" // BLACK
-    val RED = "\033[031m" // RED
-    val GREEN = "\033[032m" // GREEN
-    val YELLOW = "\033[033m" // YELLOW
-    val BLUE = "\033[034m" // BLUE
-    val PURPLE = "\033[035m" // PURPLE
-    val CYAN = "\033[036m" // CYAN
-    val WHITE = "\033[037m" // WHITE
+    val BLACK = "\u001b[030m" // BLACK
+    val RED = "\u001b[031m" // RED
+    val GREEN = "\u001b[032m" // GREEN
+    val YELLOW = "\u001b[033m" // YELLOW
+    val BLUE = "\u001b[034m" // BLUE
+    val PURPLE = "\u001b[035m" // PURPLE
+    val CYAN = "\u001b[036m" // CYAN
+    val WHITE = "\u001b[037m" // WHITE
 
     // Bold
-    val BLACK_BOLD = "\033[130m" // BLACK
-    val RED_BOLD = "\033[131m" // RED
-    val GREEN_BOLD = "\033[132m" // GREEN
-    val YELLOW_BOLD = "\033[133m" // YELLOW
-    val BLUE_BOLD = "\033[134m" // BLUE
-    val PURPLE_BOLD = "\033[135m" // PURPLE
-    val CYAN_BOLD = "\033[136m" // CYAN
-    val WHITE_BOLD = "\033[137m" // WHITE
+    val BLACK_BOLD = "\u001b[130m" // BLACK
+    val RED_BOLD = "\u001b[131m" // RED
+    val GREEN_BOLD = "\u001b[132m" // GREEN
+    val YELLOW_BOLD = "\u001b[133m" // YELLOW
+    val BLUE_BOLD = "\u001b[134m" // BLUE
+    val PURPLE_BOLD = "\u001b[135m" // PURPLE
+    val CYAN_BOLD = "\u001b[136m" // CYAN
+    val WHITE_BOLD = "\u001b[137m" // WHITE
 
     // Underline
-    val BLACK_UNDERLINED = "\033[430m" // BLACK
-    val RED_UNDERLINED = "\033[431m" // RED
-    val GREEN_UNDERLINED = "\033[432m" // GREEN
-    val YELLOW_UNDERLINED = "\033[433m" // YELLOW
-    val BLUE_UNDERLINED = "\033[434m" // BLUE
-    val PURPLE_UNDERLINED = "\033[435m" // PURPLE
-    val CYAN_UNDERLINED = "\033[436m" // CYAN
-    val WHITE_UNDERLINED = "\033[437m" // WHITE
+    val BLACK_UNDERLINED = "\u001b[430m" // BLACK
+    val RED_UNDERLINED = "\u001b[431m" // RED
+    val GREEN_UNDERLINED = "\u001b[432m" // GREEN
+    val YELLOW_UNDERLINED = "\u001b[433m" // YELLOW
+    val BLUE_UNDERLINED = "\u001b[434m" // BLUE
+    val PURPLE_UNDERLINED = "\u001b[435m" // PURPLE
+    val CYAN_UNDERLINED = "\u001b[436m" // CYAN
+    val WHITE_UNDERLINED = "\u001b[437m" // WHITE
 
     // Background
-    val BLACK_BACKGROUND = "\033[40m" // BLACK
-    val RED_BACKGROUND = "\033[41m" // RED
-    val GREEN_BACKGROUND = "\033[42m" // GREEN
-    val YELLOW_BACKGROUND = "\033[43m" // YELLOW
-    val BLUE_BACKGROUND = "\033[44m" // BLUE
-    val PURPLE_BACKGROUND = "\033[45m" // PURPLE
-    val CYAN_BACKGROUND = "\033[46m" // CYAN
-    val WHITE_BACKGROUND = "\033[47m" // WHITE
+    val BLACK_BACKGROUND = "\u001b[40m" // BLACK
+    val RED_BACKGROUND = "\u001b[41m" // RED
+    val GREEN_BACKGROUND = "\u001b[42m" // GREEN
+    val YELLOW_BACKGROUND = "\u001b[43m" // YELLOW
+    val BLUE_BACKGROUND = "\u001b[44m" // BLUE
+    val PURPLE_BACKGROUND = "\u001b[45m" // PURPLE
+    val CYAN_BACKGROUND = "\u001b[46m" // CYAN
+    val WHITE_BACKGROUND = "\u001b[47m" // WHITE
 
     // High Intensity
-    val BLACK_BRIGHT = "\033[090m" // BLACK
-    val RED_BRIGHT = "\033[091m" // RED
-    val GREEN_BRIGHT = "\033[092m" // GREEN
-    val YELLOW_BRIGHT = "\033[093m" // YELLOW
-    val BLUE_BRIGHT = "\033[094m" // BLUE
-    val PURPLE_BRIGHT = "\033[095m" // PURPLE
-    val CYAN_BRIGHT = "\033[096m" // CYAN
-    val WHITE_BRIGHT = "\033[097m" // WHITE
+    val BLACK_BRIGHT = "\u001b[090m" // BLACK
+    val RED_BRIGHT = "\u001b[091m" // RED
+    val GREEN_BRIGHT = "\u001b[092m" // GREEN
+    val YELLOW_BRIGHT = "\u001b[093m" // YELLOW
+    val BLUE_BRIGHT = "\u001b[094m" // BLUE
+    val PURPLE_BRIGHT = "\u001b[095m" // PURPLE
+    val CYAN_BRIGHT = "\u001b[096m" // CYAN
+    val WHITE_BRIGHT = "\u001b[097m" // WHITE
 
     // Bold High Intensity
-    val BLACK_BOLD_BRIGHT = "\033[190m" // BLACK
-    val RED_BOLD_BRIGHT = "\033[191m" // RED
-    val GREEN_BOLD_BRIGHT = "\033[192m" // GREEN
-    val YELLOW_BOLD_BRIGHT = "\033[193m"
+    val BLACK_BOLD_BRIGHT = "\u001b[190m" // BLACK
+    val RED_BOLD_BRIGHT = "\u001b[191m" // RED
+    val GREEN_BOLD_BRIGHT = "\u001b[192m" // GREEN
+    val YELLOW_BOLD_BRIGHT = "\u001b[193m"
     // YELLOW
-    val BLUE_BOLD_BRIGHT = "\033[194m" // BLUE
-    val PURPLE_BOLD_BRIGHT = "\033[195m"
+    val BLUE_BOLD_BRIGHT = "\u001b[194m" // BLUE
+    val PURPLE_BOLD_BRIGHT = "\u001b[195m"
     // PURPLE
-    val CYAN_BOLD_BRIGHT = "\033[196m" // CYAN
-    val WHITE_BOLD_BRIGHT = "\033[197m" // WHITE
+    val CYAN_BOLD_BRIGHT = "\u001b[196m" // CYAN
+    val WHITE_BOLD_BRIGHT = "\u001b[197m" // WHITE
 
     // High Intensity backgrounds
-    val BLACK_BACKGROUND_BRIGHT = "\033[0100m"
+    val BLACK_BACKGROUND_BRIGHT = "\u001b[0100m"
     // BLACK
-    val RED_BACKGROUND_BRIGHT = "\033[0101m"
+    val RED_BACKGROUND_BRIGHT = "\u001b[0101m"
     // RED
-    val GREEN_BACKGROUND_BRIGHT = "\033[0102m"
+    val GREEN_BACKGROUND_BRIGHT = "\u001b[0102m"
     // GREEN
-    val YELLOW_BACKGROUND_BRIGHT = "\033[0103m"
+    val YELLOW_BACKGROUND_BRIGHT = "\u001b[0103m"
     // YELLOW
-    val BLUE_BACKGROUND_BRIGHT = "\033[0104m"
+    val BLUE_BACKGROUND_BRIGHT = "\u001b[0104m"
     // BLUE
-    val PURPLE_BACKGROUND_BRIGHT = "\033[0105m" // PURPLE
-    val CYAN_BACKGROUND_BRIGHT = "\033[0106m" // CYAN
-    val WHITE_BACKGROUND_BRIGHT = "\033[0107m" // WHITE
+    val PURPLE_BACKGROUND_BRIGHT = "\u001b[0105m" // PURPLE
+    val CYAN_BACKGROUND_BRIGHT = "\u001b[0106m" // CYAN
+    val WHITE_BACKGROUND_BRIGHT = "\u001b[0107m" // WHITE
   }
 
 }

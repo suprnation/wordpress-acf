@@ -7,7 +7,7 @@ import com.suprnation.cms.deserialiser.{CmsDeserialiser, DeserialiseUsing}
 object InjectorPreProcessor {
 
   def apply(clazz: Class[_ <: CmsDeserialiser[_]]): InjectorPreProcessor =
-    new TypeTransformingInjectorPreProcessor(s => TypeTransformingInjectorPreProcessor(clazz.newInstance()).transform(s))
+    new TypeTransformingInjectorPreProcessor(s => TypeTransformingInjectorPreProcessor(clazz.getDeclaredConstructor().newInstance()).transform(s))
 
   def getPreProcessorAndTargetType(field: Field): InjectorPreProcessor =
     Option(field.getAnnotation(classOf[DeserialiseUsing]))
@@ -17,22 +17,22 @@ object InjectorPreProcessor {
 }
 
 sealed trait InjectorPreProcessor {
-  def transformerFunction: (Object => Object)
+  def transformerFunction: Object => Object
 
   def transform(s: Object): Object
 }
 
 object TypeTransformingInjectorPreProcessor{
-  def apply(deserialiser: CmsDeserialiser[_]): TypeTransformingInjectorPreProcessor =
-    new TypeTransformingInjectorPreProcessor(s => deserialiser.deserialise(s.asInstanceOf[String]).asInstanceOf[Object])
+  def apply(deserializer: CmsDeserialiser[_]): TypeTransformingInjectorPreProcessor =
+    new TypeTransformingInjectorPreProcessor(s => deserializer.deserialise(s.asInstanceOf[String]).asInstanceOf[Object])
 }
 
-case class TypeTransformingInjectorPreProcessor(override val transformerFunction: (Object => Object)) extends InjectorPreProcessor {
-  override def transform(s: Object) = transformerFunction.apply(s)
+case class TypeTransformingInjectorPreProcessor(override val transformerFunction: Object => Object) extends InjectorPreProcessor {
+  override def transform(s: Object): Object = transformerFunction.apply(s)
 }
 
 object IdentityInjectorPreProcessor extends InjectorPreProcessor {
-  override def transformerFunction: (Object => Object) = identity
+  override def transformerFunction: Object => Object = identity
 
   override def transform(s: Object): Object = s
 }

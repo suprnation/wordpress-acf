@@ -13,7 +13,6 @@
     <tx:annotation-driven transaction-manager="cmsTransactionManager"/>
 
     <bean id="cmsHikariConfig" class="com.zaxxer.hikari.HikariConfig">
-        <property name="initializationFailFast" value="false"/>
         <property name="maximumPoolSize" value="${database.cms.max.connections}"/>
         <property name="leakDetectionThreshold" value="20000"/>
         <property name="connectionTestQuery" value="SELECT 1"/>
