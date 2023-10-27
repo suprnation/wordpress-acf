@@ -5,7 +5,7 @@
     <parent>
         <artifactId>wordpress-acf</artifactId>
         <groupId>com.suprnation</groupId>
-        <version>4.3-SNAPSHOT</version>
+        <version>4.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

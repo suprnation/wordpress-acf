@@ -6,7 +6,7 @@
 
     <groupId>com.suprnation</groupId>
     <artifactId>wordpress-acf</artifactId>
-    <version>4.3-SNAPSHOT</version>
+    <version>4.4-SNAPSHOT</version>
     <modules>
         <module>wordpress-acf-common</module>
         <module>wordpress-acf-common-integration</module>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.suprnation</groupId>
             <artifactId>wordpress-acf-common</artifactId>
-            <version>4.3-SNAPSHOT</version>
+            <version>4.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -85,9 +85,9 @@
         </dependency>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.48</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
         </dependency>
 
         <dependency>
@@ -203,7 +203,7 @@
                         <arg>-feature</arg>
                         <arg>-language:implicitConversions</arg>
                     </args>
-                    <scalaVersion>2.13.8</scalaVersion>
+                    <scalaVersion>2.13.9</scalaVersion>
                 </configuration>
                 <executions>
                     <execution>
@@ -226,6 +226,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
