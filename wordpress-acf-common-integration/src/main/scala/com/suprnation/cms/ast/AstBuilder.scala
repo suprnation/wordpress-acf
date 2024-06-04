@@ -1,7 +1,6 @@
 package com.suprnation.cms.ast
 
 import java.util
-
 import com.suprnation.cms.annotations.{PostType, Taxonomy}
 import com.suprnation.cms.enums.CmsPostStatus
 import com.suprnation.cms.injector.Injector
@@ -9,8 +8,9 @@ import com.suprnation.cms.marker.CmsPostIdentifier
 import com.suprnation.cms.semantic.{NoDupSemanticAnalyser, TypeSemanticAnalyser}
 import com.suprnation.cms.tokens._
 import com.suprnation.cms.utils.CmsReflectionUtils
-import org.joda.time.DateTime
 import org.springframework.stereotype.Component
+
+import java.time.ZonedDateTime
 
 object AstBuilder {
   val primitives: Set[Class[_]] = Set(
@@ -19,7 +19,7 @@ object AstBuilder {
     classOf[java.lang.Long],
     classOf[java.lang.Double],
     classOf[java.lang.String],
-    classOf[DateTime])
+    classOf[ZonedDateTime])
 
   val collections: Set[Class[_]] = Set(classOf[java.util.List[_]], classOf[java.util.Set[_]])
 }

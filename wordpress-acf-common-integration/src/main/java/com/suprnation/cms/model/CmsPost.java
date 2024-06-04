@@ -4,14 +4,16 @@ import com.suprnation.cms.enums.CmsPostStatus;
 import com.suprnation.cms.marker.CmsPostIdentifier;
 import lombok.*;
 import org.hibernate.annotations.Immutable;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 @Entity
@@ -95,7 +97,7 @@ public class CmsPost implements Cloneable, Serializable, CmsPostIdentifier {
         return author;
     }
 
-    public DateTime getPostDate() {
+    public ZonedDateTime getPostDate() {
         return parseDateTime(postDateGmt);
     }
 
@@ -115,7 +117,7 @@ public class CmsPost implements Cloneable, Serializable, CmsPostIdentifier {
         return type;
     }
 
-    public DateTime getModified() {
+    public ZonedDateTime getModified() {
         return parseDateTime(modifiedGmt);
     }
 
@@ -123,9 +125,9 @@ public class CmsPost implements Cloneable, Serializable, CmsPostIdentifier {
         return guid;
     }
 
-    private DateTime parseDateTime(String date) {
+    private ZonedDateTime parseDateTime(String date) {
         if (date != null)
-            return DateTime.parse(date.replace(" ", "T").concat("Z")).withZone(DateTimeZone.UTC);
+            return ZonedDateTime.parse(date.replace(" ", "T").concat("Z"), DateTimeFormatter.ISO_ZONED_DATE_TIME).withZoneSameInstant(ZoneId.from(ZoneOffset.UTC));
         else
             return null;
     }

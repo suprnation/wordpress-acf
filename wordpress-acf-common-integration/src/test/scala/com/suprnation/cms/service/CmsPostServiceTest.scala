@@ -3,12 +3,13 @@ package com.suprnation.cms.service
 import com.suprnation.cms.enums.CmsPostStatus
 import com.suprnation.cms.model.CmsPost
 import com.suprnation.cms.repository.CmsPostRepository
-import org.joda.time.{DateTime, DateTimeZone}
 import org.junit.runner.RunWith
 import org.junit.{Assert, Before, Test}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+
+import java.time.{ZoneId, ZoneOffset, ZonedDateTime}
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(locations = Array("classpath:test-applicationContext.xml"))
@@ -32,14 +33,7 @@ class CmsPostServiceTest() {
   @Test
   def testGteFilterDateEqual(): Unit = {
 
-    val date = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(10)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val date = ZonedDateTime.of(2018, 9, 12, 10, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateGte(postName, date)
     Assert.assertEquals(1, posts.size)
@@ -49,14 +43,7 @@ class CmsPostServiceTest() {
   @Test
   def testGteFilterDateBefore(): Unit = {
 
-    val date = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(9)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val date = ZonedDateTime.of(2018, 9, 12, 9, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateGte(postName, date)
     Assert.assertEquals(1, posts.size)
@@ -66,14 +53,7 @@ class CmsPostServiceTest() {
   @Test
   def testGteFilterDateAfter(): Unit = {
 
-    val date = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(11)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val date = ZonedDateTime.of(2018, 9, 12, 11, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateGte(postName, date)
     Assert.assertEquals(0, posts.size)
@@ -83,14 +63,7 @@ class CmsPostServiceTest() {
   @Test
   def testLteFilterDateEqual(): Unit = {
 
-    val date = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(10)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val date = ZonedDateTime.of(2018, 9, 12, 10, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateLte(postName, date)
     Assert.assertEquals(1, posts.size)
@@ -100,14 +73,7 @@ class CmsPostServiceTest() {
   @Test
   def testLteFilterDateBefore(): Unit = {
 
-    val date = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(9)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val date = ZonedDateTime.of(2018, 9, 12, 9, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateLte(postName, date)
     Assert.assertEquals(0, posts.size)
@@ -117,14 +83,7 @@ class CmsPostServiceTest() {
   @Test
   def testLteFilterDateAfter(): Unit = {
 
-    val date = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(11)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val date = ZonedDateTime.of(2018, 9, 12, 11, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateLte(postName, date)
     Assert.assertEquals(1, posts.size)
@@ -134,23 +93,9 @@ class CmsPostServiceTest() {
   @Test
   def testGteAndLteFilterDateBetween(): Unit = {
 
-    val start = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(10)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val start = ZonedDateTime.of(2018, 9, 12, 10, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
-    val end = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(10)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val end = ZonedDateTime.of(2018, 9, 12, 10, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateGteAndModifiedDateLte(postName, start, end)
     Assert.assertEquals(1, posts.size)
@@ -160,23 +105,9 @@ class CmsPostServiceTest() {
   @Test
   def testGteAndLteFilterEndDateBoundary(): Unit = {
 
-    val start = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(10)
-      .withHourOfDay(10)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val start = ZonedDateTime.of(2018, 9, 10, 10, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
-    val end = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(10)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val end = ZonedDateTime.of(2018, 9, 12, 10, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateGteAndModifiedDateLte(postName, start, end)
     Assert.assertEquals(1, posts.size)
@@ -186,23 +117,9 @@ class CmsPostServiceTest() {
   @Test
   def testGteAndLteFilterStartDateBoundary(): Unit = {
 
-    val start = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(12)
-      .withHourOfDay(10)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val start = ZonedDateTime.of(2018, 9, 12, 10, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
-    val end = new DateTime(DateTimeZone.UTC)
-      .withYear(2018)
-      .withMonthOfYear(9)
-      .withDayOfMonth(15)
-      .withHourOfDay(10)
-      .withMinuteOfHour(0)
-      .withSecondOfMinute(0)
-      .withMillisOfSecond(0)
+    val end = ZonedDateTime.of(2018, 9, 15, 10, 0, 0, 0, ZoneId.from(ZoneOffset.UTC))
 
     val posts: Iterable[CmsPost] = cmsPostService.findByTypeAndModifiedDateGteAndModifiedDateLte(postName, start, end)
     Assert.assertEquals(1, posts.size)
