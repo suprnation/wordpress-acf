@@ -3,14 +3,13 @@ package com.suprnation.cms.model;
 import com.suprnation.cms.annotations.Alias;
 import lombok.*;
 import org.hibernate.annotations.Immutable;
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 
 @Entity
 @EqualsAndHashCode
@@ -39,6 +38,5 @@ public class CmsUser implements Cloneable, Serializable {
 
     @Alias("user_registered")
     @Column(name = "user_registered")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime registered;
+    private ZonedDateTime registered;
 }

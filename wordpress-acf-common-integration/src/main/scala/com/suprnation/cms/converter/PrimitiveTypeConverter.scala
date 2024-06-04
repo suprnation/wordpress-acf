@@ -2,14 +2,18 @@ package com.suprnation.cms.converter
 
 import java.lang
 import java.lang.annotation.Annotation
-
 import com.suprnation.cms.annotations.{ForceUtc, Formatted, NumberCsv}
 import com.suprnation.cms.enums.Formatting.{HtmlToTags, NewLineToBR, NoFormatting}
 import com.suprnation.cms.utils.CmsReflectionUtils
-import org.joda.time.DateTime
 import org.springframework.util.StringUtils
 
+import java.time.{DateTimeException, LocalDate, ZoneId, ZoneOffset, ZonedDateTime}
+import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
+
 object PrimitiveTypeConverter {
+
+  // Parsing the following formats: '20240322' '2024-03-22' '2024-03-22 15:52' '2024-03-22 15:52:34'  '2024-03-22T15:52:34' '2024-03-22T15:52:34Z' '2024-03-22T15:52:34.123' '2024-03-22T15:52:34.123Z' '2024-03-22T15:52:34.123456' '2024-03-22T15:52:34.123456Z'
+  val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("[yyyyMMdd][yyyy-MM-dd[ HH:mm[:ss]]['T'HH:mm:ss[.SSSSSS][.SSS][z]]]").withZone(ZoneId.from(ZoneOffset.UTC))
 
   private def converters: Map[(Class[_], List[Class[_]]), PrimitiveTypeConverter] = Map(
     (classOf[String], List.empty) -> StringConverter(),
@@ -19,8 +23,8 @@ object PrimitiveTypeConverter {
     (classOf[lang.Long], List.empty) -> LongConverter(),
     (classOf[lang.Double], List.empty) -> DoubleConverter(),
     (classOf[lang.Boolean], List.empty) -> BooleanConverter(),
-    (classOf[DateTime], List(classOf[ForceUtc])) -> DateTimeConverter(true),
-    (classOf[DateTime], List.empty) -> DateTimeConverter(false))
+    (classOf[ZonedDateTime], List(classOf[ForceUtc])) -> DateTimeConverter(true),
+    (classOf[ZonedDateTime], List.empty) -> DateTimeConverter(false))
 
   def convert(value: String, targetClass: Class[_], annotations: List[_ >: Annotation]): Object = {
     val converter = if (targetClass.isEnum) Option(EnumConverter()) else converters.get((targetClass, annotations.map(a => a.asInstanceOf[Annotation].annotationType())))
@@ -74,13 +78,15 @@ private case class EnumConverter() extends PrimitiveTypeConverter {
 }
 
 private case class DateTimeConverter(forceUtc: Boolean) extends PrimitiveTypeConverter {
-  override def convert: (String, List[_], Class[_]) => DateTime = (value, _, _) => {
+  override def convert: (String, List[_], Class[_]) => ZonedDateTime = (value, _, _) => {
     if (StringUtils.isEmpty(value)) null
     else {
-      if (!forceUtc || value.contains("T") && value.contains("Z")) {
-        DateTime.parse(value)
+      if (value.size == 8 || value.size == 10) // Assume a date: 20240322 or 2024-03-22
+        LocalDate.parse(value, PrimitiveTypeConverter.dateTimeFormatter).atStartOfDay(ZoneId.from(ZoneOffset.UTC))
+      else if (!forceUtc || value.contains("T") && value.contains("Z")) {
+        ZonedDateTime.parse(value, PrimitiveTypeConverter.dateTimeFormatter)
       } else {
-        DateTime.parse(if (value.contains(" ")) value.replace(" ", "T") + "Z" else value + "T00:00.000000Z")
+        ZonedDateTime.parse(if (value.contains(" ")) value.replace(" ", "T") + "Z" else value + "T00:00:00.000000Z", DateTimeFormatter.ISO_ZONED_DATE_TIME)
       }
     }
   }

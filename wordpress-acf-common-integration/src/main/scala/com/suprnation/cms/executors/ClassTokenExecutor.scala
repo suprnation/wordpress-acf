@@ -1,7 +1,6 @@
 package com.suprnation.cms.executors
 
 import java.util
-
 import com.suprnation.cms.cache.{GlobalPostCache, _}
 import com.suprnation.cms.compiler.AstCompiler
 import com.suprnation.cms.interop._
@@ -16,8 +15,8 @@ import com.suprnation.cms.store.GlobalPostCacheStore
 import com.suprnation.cms.tokens._
 import com.suprnation.cms.types.PostId
 import com.suprnation.cms.utils.CmsReflectionUtils
-import org.joda.time.DateTime
 
+import java.time.ZonedDateTime
 import scala.collection.JavaConverters._
 
 
@@ -25,8 +24,8 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T ]
 (postToken: PostToken[T],
  fieldExecutors: List[S],
  filters: Set[PostId] = Set.empty,
- gte: Option[DateTime] = Option.empty,
- lte: Option[DateTime] = Option.empty)
+ gte: Option[ZonedDateTime] = Option.empty,
+ lte: Option[ZonedDateTime] = Option.empty)
 (implicit acfFieldService: AcfFieldService,
  astCompiler: AstCompiler,
  cmsPostMetaRepository: CmsPostMetaRepository,
@@ -42,13 +41,13 @@ case class ClassTokenExecutor[+S <: FieldExecutionPlan[CmsFieldToken, _], T ]
     new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters ++ s, this.gte, this.lte)
   }
 
-  def gte(gte: DateTime):ClassTokenExecutor[S, T]  = {
+  def gte(gte: ZonedDateTime):ClassTokenExecutor[S, T]  = {
     if (this.filters.nonEmpty)
       throw new IllegalStateException("Cannot use GTE filter with Post Id filtering")
     new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters, Option(gte), this.lte)
   }
 
-  def lte(lte: DateTime): ClassTokenExecutor[S, T] = {
+  def lte(lte: ZonedDateTime): ClassTokenExecutor[S, T] = {
     if (this.filters.nonEmpty)
       throw new IllegalStateException("Cannot use GTE filter with Post Id filtering")
     new ClassTokenExecutor[S, T](postToken, this.fieldExecutors, this.filters, this.gte, Option(lte))

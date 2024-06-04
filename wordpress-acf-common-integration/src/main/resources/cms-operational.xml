@@ -13,17 +13,16 @@
     <tx:annotation-driven transaction-manager="cmsTransactionManager"/>
 
     <bean id="cmsHikariConfig" class="com.zaxxer.hikari.HikariConfig">
-        <property name="initializationFailFast" value="false"/>
         <property name="maximumPoolSize" value="${database.cms.max.connections}"/>
         <property name="leakDetectionThreshold" value="20000"/>
         <property name="connectionTestQuery" value="SELECT 1"/>
-        <property name="dataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource"/>
+        <property name="dataSourceClassName" value="com.mysql.cj.jdbc.MysqlDataSource"/>
         <property name="dataSourceProperties">
             <props>
                 <prop key="url">${database.cms.url}</prop>
                 <prop key="user">${database.cms.user}</prop>
                 <prop key="password">${database.cms.password}</prop>
-                <prop key="zeroDateTimeBehavior">convertToNull</prop>
+                <prop key="zeroDateTimeBehavior">CONVERT_TO_NULL</prop>
             </props>
         </property>
     </bean>

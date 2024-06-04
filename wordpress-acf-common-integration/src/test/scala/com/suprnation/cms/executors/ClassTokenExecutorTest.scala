@@ -12,10 +12,11 @@ import com.suprnation.cms.store.{GlobalPostCacheStore, InMemoryStore}
 import com.suprnation.cms.tokens.{CmsFieldToken, FieldToken, PostToken}
 import com.suprnation.cms.types.PostId
 import com.suprnation.to.SimpleType
-import org.joda.time.DateTime
 import org.mockito.Mockito.{mock, verify, when}
 import org.mockito.internal.verification.VerificationModeFactory
 import org.scalatest.{BeforeAndAfterEach, FunSuite, Matchers}
+
+import java.time.ZonedDateTime
 
 class ClassTokenExecutorTest extends FunSuite with Matchers with BeforeAndAfterEach {
 
@@ -43,7 +44,7 @@ class ClassTokenExecutorTest extends FunSuite with Matchers with BeforeAndAfterE
     val posts = List(new CmsPost(1L), new CmsPost(2L))
     val postIdsFilter: Set[PostId] = posts.map(_.getId).toSet
 
-    val date = DateTime.now()
+    val date = ZonedDateTime.now()
 
     intercept[IllegalStateException] {
       ClassTokenExecutor(
@@ -71,7 +72,7 @@ class ClassTokenExecutorTest extends FunSuite with Matchers with BeforeAndAfterE
     val posts = List(new CmsPost(1L), new CmsPost(2L))
     val postIdsFilter: Set[PostId] = posts.map(_.getId).toSet
 
-    val date = DateTime.now()
+    val date = ZonedDateTime.now()
 
     intercept[IllegalStateException] {
       ClassTokenExecutor(
@@ -129,7 +130,7 @@ class ClassTokenExecutorTest extends FunSuite with Matchers with BeforeAndAfterE
       FieldToken(FieldInjector(clazz.getDeclaredField("intPrimitive")), classOf[java.lang.Integer])
     ))
 
-    val date = DateTime.now()
+    val date = ZonedDateTime.now()
 
     val posts = List(new CmsPost(1L), new CmsPost(2L))
     when(cmsPostService.findByTypeAndModifiedDateGte("a", date)).thenReturn(posts)
@@ -164,7 +165,7 @@ class ClassTokenExecutorTest extends FunSuite with Matchers with BeforeAndAfterE
       FieldToken(FieldInjector(clazz.getDeclaredField("intPrimitive")), classOf[java.lang.Integer])
     ))
 
-    val date = DateTime.now()
+    val date = ZonedDateTime.now()
 
     val posts = List(new CmsPost(1L), new CmsPost(2L))
     when(cmsPostService.findByTypeAndModifiedDateLte("a", date)).thenReturn(posts)
@@ -199,7 +200,7 @@ class ClassTokenExecutorTest extends FunSuite with Matchers with BeforeAndAfterE
       FieldToken(FieldInjector(clazz.getDeclaredField("intPrimitive")), classOf[java.lang.Integer])
     ))
 
-    val date = DateTime.now()
+    val date = ZonedDateTime.now()
 
     val posts = List(new CmsPost(1L), new CmsPost(2L))
     when(cmsPostService.findByTypeAndModifiedDateGteAndModifiedDateLte("a", date, date)).thenReturn(posts)

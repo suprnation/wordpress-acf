@@ -3,7 +3,6 @@ package com.suprnation.cms.repository
 import java.{lang, util}
 
 import com.suprnation.cms.model.CmsPost
-import org.joda.time.DateTime
 import org.springframework.data.jpa.repository.{JpaRepository, Query}
 import org.springframework.data.repository.query.Param
 
