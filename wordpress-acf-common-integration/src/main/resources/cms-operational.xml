@@ -41,8 +41,6 @@
                 <entry key="hibernate.connection.zeroDateTimeBehavior" value="convertToNull"/>
                 <entry key="hibernate.cache.use_query_cache" value="false"/>
                 <entry key="hibernate.cache.use_second_level_cache" value="false"/>
-                <entry key="hibernate.cache.region.factory_class"
-                       value="net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory"/>
                 <entry key="hibernate.generate_statistics" value="false"/>
                 <entry key="hibernate.cache.use_minimal_puts" value="true"/>
                 <entry key="hibernate.default_batch_fetch_size" value="8"/>

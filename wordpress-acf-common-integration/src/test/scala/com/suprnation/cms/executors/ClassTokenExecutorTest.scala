@@ -14,11 +14,13 @@ import com.suprnation.cms.types.PostId
 import com.suprnation.to.SimpleType
 import org.mockito.Mockito.{mock, verify, when}
 import org.mockito.internal.verification.VerificationModeFactory
-import org.scalatest.{BeforeAndAfterEach, FunSuite, Matchers}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 import java.time.ZonedDateTime
 
-class ClassTokenExecutorTest extends FunSuite with Matchers with BeforeAndAfterEach {
+class ClassTokenExecutorTest extends AnyFunSuite with Matchers with BeforeAndAfterEach {
 
   val executionLogger: ExecutionLogger.IgnoreAllExecutionLogger.type = ExecutionLogger.IgnoreAllExecutionLogger
 

@@ -1,8 +1,9 @@
 package com.suprnation.cms.utils
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class StringUtilsTest extends FunSuite with Matchers {
+class StringUtilsTest extends AnyFunSuite with Matchers {
 
   test("shouldConvertFromCamelCaseToLowerDashCase") {
     StringUtils.convertToLowerDashCaseFromCamelCase("testingThisOne") shouldBe "testing-this-one"

@@ -2,7 +2,7 @@ package com.suprnation.cms.resolvers
 
 import java.util.Collections
 
-import com.suprnation.cms.cache.{GlobalFieldCache, GlobalRelationshipCache, _}
+import com.suprnation.cms.cache._
 import com.suprnation.cms.log.{ExecutionLogger, MultipleResultCacheMetric}
 import com.suprnation.cms.result.Result
 import com.suprnation.cms.service.CmsRelationshipService
