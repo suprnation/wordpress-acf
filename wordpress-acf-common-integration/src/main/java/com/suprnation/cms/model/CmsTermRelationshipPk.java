@@ -3,7 +3,7 @@ package com.suprnation.cms.model;
 import lombok.*;
 import org.hibernate.annotations.Immutable;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 import java.io.Serializable;
 
 @EqualsAndHashCode
