@@ -1,6 +1,6 @@
 package com.suprnation.cms.resolvers
 
-import com.suprnation.cms.cache.{FieldCache, GlobalFieldCache, _}
+import com.suprnation.cms.cache._
 import com.suprnation.cms.result.Result
 import com.suprnation.cms.tokens.CmsFieldToken
 import com.suprnation.cms.context.Cache

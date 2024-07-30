@@ -17,15 +17,17 @@ import com.suprnation.cms.tokens._
 import com.suprnation.cms.types.{PostId, Taxonomy, Term}
 import com.suprnation.to.TaxonomyType.Tax
 import com.suprnation.to.{NestedListType, SimpleFlatList, SimpleType, TaxonomyType}
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.internal.verification.VerificationModeFactory
-import org.scalatest.{BeforeAndAfterEach, FunSuite, Matchers}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable
 
 @SuppressWarnings(Array("deprecation"))
-class ResolverTest extends FunSuite with Matchers with BeforeAndAfterEach {
+class ResolverTest extends AnyFunSuite with Matchers with BeforeAndAfterEach {
 
   val executionLogger: ExecutionLogger.IgnoreAllExecutionLogger.type = ExecutionLogger.IgnoreAllExecutionLogger
 

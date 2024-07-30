@@ -6,9 +6,10 @@ import com.suprnation.cms.injector.InjectorPreProcessor
 import com.suprnation.cms.tokens._
 import com.suprnation.to.TaxonomyType.Tax
 import com.suprnation.to._
-import org.scalatest.{FunSuite, _}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class AstBuilderTest extends FunSuite with Matchers {
+class AstBuilderTest extends AnyFunSuite with Matchers {
 
   val astBuilder = new AstBuilder()
 

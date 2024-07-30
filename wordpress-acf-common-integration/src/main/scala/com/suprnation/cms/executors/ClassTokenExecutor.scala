@@ -1,7 +1,7 @@
 package com.suprnation.cms.executors
 
 import java.util
-import com.suprnation.cms.cache.{GlobalPostCache, _}
+import com.suprnation.cms.cache._
 import com.suprnation.cms.compiler.AstCompiler
 import com.suprnation.cms.interop._
 import com.suprnation.cms.log._

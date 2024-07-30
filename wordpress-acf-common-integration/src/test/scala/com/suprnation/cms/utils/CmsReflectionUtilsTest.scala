@@ -1,9 +1,10 @@
 package com.suprnation.cms.utils
 
 import com.suprnation.enums.{SampleEnum, SampleEnumWithValueOf}
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class CmsReflectionUtilsTest extends FunSuite with Matchers {
+class CmsReflectionUtilsTest extends AnyFunSuite with Matchers {
 
   test("shouldConvertEnumValueWhenEnumIsValid") {
     CmsReflectionUtils.instantiateEnum(classOf[SampleEnum], "NORMAL") shouldBe SampleEnum.NORMAL

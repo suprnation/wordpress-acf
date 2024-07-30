@@ -1,6 +1,6 @@
 package com.suprnation.cms.resolvers
 
-import com.suprnation.cms.cache.{GlobalFieldCache, _}
+import com.suprnation.cms.cache._
 import com.suprnation.cms.log
 import com.suprnation.cms.repository.CmsPostMetaRepository
 import com.suprnation.cms.store.GlobalPostCacheStore

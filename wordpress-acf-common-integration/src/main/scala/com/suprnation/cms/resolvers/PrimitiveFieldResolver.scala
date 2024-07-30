@@ -1,6 +1,6 @@
 package com.suprnation.cms.resolvers
 
-import com.suprnation.cms.cache.{GlobalFieldCache, _}
+import com.suprnation.cms.cache._
 import com.suprnation.cms.log.{ExecutionLogger, MultipleResultCacheMetric}
 import com.suprnation.cms.service.AcfFieldService
 import com.suprnation.cms.store.GlobalPostCacheStore
